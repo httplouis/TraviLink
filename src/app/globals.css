@@ -1,9 +1,11 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+:root { color-scheme: light; }
+body { @apply bg-neutral-50 text-neutral-900; }
+
 
 @theme inline {
   --color-background: var(--background);
@@ -24,3 +26,4 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
