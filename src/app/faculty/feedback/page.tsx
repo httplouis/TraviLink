@@ -228,7 +228,7 @@ export default function FacultyFeedbackPage() {
           {/* RIGHT: Tips */}
           <aside className="space-y-4">
             <section className="rounded-lg bg-[#5c0013] text-white p-4">
-              <div className="text-lg font-semibold">We’re listening 👂</div>
+              <div className="text-lg font-semibold">We’re listening </div>
               <p className="mt-1 text-sm opacity-90">
                 Your feedback helps improve scheduling, notifications, and trip coordination.
               </p>

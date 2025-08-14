@@ -27,3 +27,53 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+
+
+/* Optional: subtle background & text smoothing */
+@layer base {
+  html, body {
+    @apply antialiased;
+  }
+}
+
+/* Reusable UI primitives */
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors
+           focus:outline-none focus:ring-2 focus:ring-neutral-300
+           disabled:opacity-60 disabled:pointer-events-none px-3 py-2;
+  }
+  /* Maroon → invert on hover */
+  .btn-primary {
+    @apply bg-[#7a0019] text-white border border-transparent;
+  }
+  .btn-primary:hover {
+    @apply bg-white text-[#7a0019] border-[#7a0019];
+  }
+  /* Outline → fill on hover */
+  .btn-outline {
+    @apply bg-white text-[#7a0019] border border-[#7a0019];
+  }
+  .btn-outline:hover {
+    @apply bg-[#7a0019] text-white;
+  }
+  /* Subtle/ghost */
+  .btn-ghost {
+    @apply text-[#7a0019];
+  }
+  .btn-ghost:hover {
+    @apply bg-neutral-50;
+  }
+
+  /* Sidebar nav items */
+  .nav-item {
+    @apply flex items-center gap-2 w-full rounded-md px-3 py-2 text-sm text-neutral-700 transition-colors;
+  }
+  .nav-item:hover {
+    @apply bg-[#7a0019] text-white;
+  }
+  .nav-item-active {
+    @apply bg-[#7a0019] text-white;
+  }
+}

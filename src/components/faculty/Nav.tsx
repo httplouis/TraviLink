@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -12,24 +13,19 @@ const items = [
 
 export default function FacultyNav() {
   const pathname = usePathname();
+
   return (
-    <nav className="p-2 text-sm">
+    <nav>
       <ul className="space-y-1">
-        {items.map((i) => {
-          const active =
-            pathname === i.href ||
-            (i.href !== "/faculty" && pathname.startsWith(i.href));
+        {items.map((it) => {
+          const active = pathname === it.href;
           return (
-            <li key={i.href}>
+            <li key={it.href}>
               <Link
-                href={i.href}
-                className={`block rounded-md px-3 py-2 ${
-                  active
-                    ? "bg-[#7a0019]/10 text-[#7a0019] font-medium"
-                    : "text-neutral-700 hover:bg-neutral-50"
-                }`}
+                href={it.href}
+                className={`nav-item ${active ? "nav-item-active" : ""}`}
               >
-                {i.label}
+                {it.label}
               </Link>
             </li>
           );
