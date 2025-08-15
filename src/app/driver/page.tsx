@@ -89,7 +89,7 @@ function ActionCard({
 
 /* --------------------------------- Page --------------------------------- */
 
-export default function Home() {
+export default function DriverDashboard() {
   return (
     <>
       <PageHeader

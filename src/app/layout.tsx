@@ -1,15 +1,21 @@
+// src/app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "TraviLink",
-  description: "Campus Transport Scheduling & Tracking",
+  description: "Campus transport scheduling & tracking system",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="bg-neutral-50 text-neutral-900">{children}</body>
+      {/* globals.css sets background/text + dark mode; keep body clean */}
+      <body className="min-h-dvh antialiased">{children}</body>
     </html>
   );
 }
