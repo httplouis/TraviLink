@@ -1,60 +1,49 @@
+/* src/app/globals.css */
 @import "tailwindcss";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* =========================================
-   Design Tokens
-========================================= */
+/* ========== Shared tokens ========== */
 :root {
-  /* Brand colors */
   --brand: #7A0E20;
-  --brand-600: #8a1125;
-  --brand-700: #6b0c1c;
+  --brand-600:#8a1125;
+  --brand-700:#6b0c1c;
 
-  /* Base colors */
-  --bg: #f4f5f7;
-  --ink-900: #1f2937;
-  --ink-700: #374151;
-  --ink-500: #6b7280;
-  --muted-700: #4b5563;
-  --muted-500: #9ca3af;
-  --muted-400: #cbd5e1;
-  --muted-300: #e5e7eb;
-  --muted-250: #eceff3;
-  --muted-200: #f3f4f6;
-  --white: #ffffff;
+  --bg:#f4f5f7;
+  --ink-900:#1f2937;
+  --ink-700:#374151;
+  --ink-500:#6b7280;
+  --muted-700:#4b5563;
+  --muted-500:#9ca3af;
+  --muted-400:#cbd5e1;
+  --muted-300:#e5e7eb;
+  --muted-250:#eceff3;
+  --muted-200:#f3f4f6;
+  --white:#ffffff;
 
-  /* Radii & Shadows */
-  --radius: 14px;
-  --radius-sm: 10px;
-  --radius-pill: 999px;
-  --shadow-sm: 0 1px 0 rgba(16, 24, 40, 0.04), 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-md: 0 2px 6px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.06);
+  --radius:14px;
+  --radius-sm:10px;
+  --radius-pill:999px;
+  --shadow-sm:0 1px 0 rgba(16,24,40,.04), 0 1px 2px rgba(16,24,40,.06);
+  --shadow-md:0 2px 6px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.06);
 
-  /* Light mode defaults */
+  /* light defaults */
   --background: var(--bg);
   --foreground: var(--ink-900);
   color-scheme: light;
 }
 
-/* Dark mode support */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  :root { --background:#0a0a0a; --foreground:#ededed; }
 }
 
-/* Background & text defaults */
-html,
-body {
+html, body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Tailwind theme inline mapping (for @apply use) */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -62,281 +51,33 @@ body {
   --font-mono: var(--font-geist-mono);
 }
 
-/* =========================================
-   Base Layer
-========================================= */
 @layer base {
-  html,
-  body {
-    @apply antialiased;
-  }
+  html, body { @apply antialiased; }
 }
 
-/* =========================================
-   Components Layer
-========================================= */
+/* ========== Shared components (generic) ========== */
 @layer components {
-  /* Buttons (your style + Gab's style) */
   .btn {
     @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors
            focus:outline-none focus:ring-2 focus:ring-neutral-300
            disabled:opacity-60 disabled:pointer-events-none px-3 py-2;
   }
-  .btn-primary {
-    @apply bg-[#7a0019] text-white border border-transparent;
-  }
-  .btn-primary:hover {
-    @apply bg-white text-[#7a0019] border-[#7a0019];
-  }
-  .btn-outline {
-    @apply bg-white text-[#7a0019] border border-[#7a0019];
-  }
-  .btn-outline:hover {
-    @apply bg-[#7a0019] text-white;
-  }
-  .btn-ghost {
-    @apply text-[#7a0019];
-  }
-  .btn-ghost:hover {
-    @apply bg-neutral-50;
-  }
+  .btn-primary { @apply bg-[#7a0019] text-white border border-transparent; }
+  .btn-primary:hover { @apply bg-white text-[#7a0019] border-[#7a0019]; }
+  .btn-outline { @apply bg-white text-[#7a0019] border border-[#7a0019]; }
+  .btn-outline:hover { @apply bg-[#7a0019] text-white; }
+  .btn-ghost { @apply text-[#7a0019]; }
+  .btn-ghost:hover { @apply bg-neutral-50; }
 
-  /* Gab's pill-style buttons */
   .btn-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    font-weight: 600;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--muted-300);
-    background: var(--white);
-    box-shadow: var(--shadow-sm);
+    display:inline-flex; align-items:center; gap:8px; padding:10px 16px; font-weight:600;
+    border-radius:var(--radius-pill); border:1px solid var(--muted-300);
+    background:var(--white); box-shadow:var(--shadow-sm);
   }
-  .btn-pill:hover {
-    border-color: var(--muted-400);
-  }
-  .btn-pill-primary {
-    background: var(--brand);
-    border-color: var(--brand);
-    color: #fff;
-  }
-  .btn-pill-primary:hover {
-    background: var(--brand-600);
-    border-color: var(--brand-600);
-  }
+  .btn-pill:hover { border-color:var(--muted-400); }
+  .btn-pill-primary { background:var(--brand); border-color:var(--brand); color:#fff; }
+  .btn-pill-primary:hover { background:var(--brand-600); border-color:var(--brand-600); }
 
-  /* Sidebar nav items */
-  .nav-item {
-    @apply flex items-center gap-2 w-full rounded-md px-3 py-2 text-sm text-neutral-700 transition-colors;
-  }
-  .nav-item:hover {
-    @apply bg-[#7a0019] text-white;
-  }
-  .nav-item-active {
-    @apply bg-[#7a0019] text-white;
-  }
-}
-
-/* =========================================
-   Gab's layout-specific styles
-========================================= */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  background: var(--brand);
-  color: #fff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-}
-.topbar .search {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-}
-.topbar .search::placeholder {
-  color: rgba(255, 255, 255, 0.85);
-}
-.topbar .pill {
-  background: #fff;
-  color: var(--ink-900);
-  border-radius: var(--radius-pill);
-  padding: 8px 14px;
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-}
-
-/* Sidebar */
-.sidebar {
-  background: #fff;
-  border-right: 1px solid var(--muted-300);
-}
-.sidebar .header {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--muted-300);
-}
-.sidebar .item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  margin: 4px 10px;
-  border-radius: 10px;
-  color: var(--ink-700);
-}
-.sidebar .item:hover {
-  background: var(--muted-200);
-}
-.sidebar .item.active {
-  background: #fdebed;
-  color: var(--brand-700);
-  border: 1px solid #f4c9cf;
-}
-
-/* Cards & KPI */
-.card {
-  background: var(--white);
-  border: 1px solid var(--muted-300);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-}
-.card-muted {
-  background: var(--muted-200);
-  border-color: var(--muted-300);
-}
-.kpi {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: 1px solid var(--muted-300);
-  border-radius: var(--radius);
-  padding: 18px 12px;
-  background: var(--white);
-}
-
-/* App shell layout */
-.app-shell {
-  display: grid;
-  grid-template-columns: 260px minmax(0, 1fr) 340px;
-  gap: 16px;
-  padding-top: 12px;
-}
-.app-sidebar {
-  position: sticky;
-  top: 56px;
-  height: fit-content;
-}
-.app-main {
-  min-width: 0;
-}
-.app-rail {
-  position: relative;
-  padding-left: 16px;
-}
-.app-rail::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
-  background: var(--brand);
-  border-radius: 4px;
-  opacity: 0.9;
-}
-
-/* TraviLink specific components */
-.tl-sidebar {
-  background: #fff;
-  border: 1px solid var(--muted-300);
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-.tl-sidehdr {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: var(--muted-200);
-  border-bottom: 1px solid var(--muted-300);
-}
-.tl-badge {
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: var(--brand);
-  color: #fff;
-  font-weight: 700;
-}
-.tl-brand {
-  font-weight: 700;
-}
-.tl-navitem {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  margin: 6px 10px;
-  border-radius: 10px;
-  color: var(--ink-700);
-}
-.tl-navitem:hover {
-  background: var(--muted-200);
-}
-.tl-navitem.active {
-  background: #fdebed;
-  color: var(--brand-700);
-  border: 1px solid #f3c7cd;
-}
-.tl-rail .tl-card {
-  background: #fff;
-  border: 1px solid var(--muted-300);
-  border-radius: 14px;
-  box-shadow: var(--shadow-sm);
-  border-color: #e6b9c1;
-}
-.tl-card-body {
-  padding: 14px;
-}
-.tl-profile {
-  background: var(--brand);
-  color: #fff;
-  padding: 16px;
-  border-radius: 14px;
-  box-shadow: var(--shadow-md);
-  outline: 2px solid rgba(122, 14, 32, 0.15);
-  outline-offset: 0;
-}
-.tl-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  font-size: 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-}
-.tl-kpi {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  background: #fff;
-  border: 1px solid var(--muted-300);
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: var(--shadow-sm);
-}
-.tl-kpi-num {
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1;
-}
-.tl-kpi-label {
-  font-size: 11px;
-  color: var(--ink-700);
-  text-align: center;
+  .nav-item { @apply flex items-center gap-2 w-full rounded-md px-3 py-2 text-sm text-neutral-700 transition-colors; }
+  .nav-item:hover, .nav-item-active { @apply bg-[#7a0019] text-white; }
 }

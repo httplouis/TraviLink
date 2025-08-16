@@ -4,6 +4,9 @@ import Link from "next/link";
 import { Bell, CircleUserRound } from "lucide-react";
 import { Page } from "@/components/common/Page";
 import FacultyNav from "@/components/faculty/Nav";
+import "@/app/styles/faculty.css";
+
+
 
 export default function FacultyLayout({
   children,

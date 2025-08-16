@@ -1,0 +1,77 @@
+/* ---- ANTI-FADE PATCH: make center content readable ---- */
+[data-role="driver"] .app-shell,
+[data-role="driver"] .app-main,
+[data-role="driver"] .app-shell > *,
+[data-role="driver"] main,
+[data-role="driver"] section,
+[data-role="driver"] form,
+[data-role="driver"] table {
+  opacity: 1 !important;
+  filter: none !important;
+  color: var(--ink-900);
+  background-color: transparent;
+}
+
+/* Inputs/selects: stronger contrast */
+[data-role="driver"] input,
+[data-role="driver"] select,
+[data-role="driver"] textarea {
+  background: #fff;
+  color: var(--ink-900);
+  border: 1px solid var(--muted-300);
+  border-radius: 12px;
+}
+
+[data-role="driver"] input::placeholder,
+[data-role="driver"] textarea::placeholder {
+  color: var(--ink-500);
+  opacity: 1; /* don’t dim the placeholder */
+}
+
+/* Headings & labels inside main */
+[data-role="driver"] .app-main h1,
+[data-role="driver"] .app-main h2,
+[data-role="driver"] .app-main h3,
+[data-role="driver"] .app-main label {
+  color: var(--ink-900);
+}
+
+/* Make the maintenance panel visible even if a parent had low opacity */
+[data-role="driver"] .card,
+[data-role="driver"] .panel,
+[data-role="driver"] .tl-card {
+  background: #fff !important;
+  border: 1px solid var(--muted-300);
+  box-shadow: var(--shadow-sm);
+  opacity: 1 !important;
+}
+
+[data-role="driver"] .tl-profile {
+  background: var(--brand) !important;
+  color: #fff !important;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.15);
+  box-shadow: var(--shadow-md);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Make any inner "bg-white" / "text-neutral-*" not override */
+[data-role="driver"] .tl-profile * {
+  color: #fff !important;
+}
+[data-role="driver"] .tl-profile .pill {
+  background: #fff !important;
+  color: var(--ink-900) !important;
+}
+[data-role="driver"] .tl-profile .meta {
+  color: rgba(255,255,255,.9) !important;
+}
+
+/* Optional: watermark tuning if it's an <img> inside the panel */
+[data-role="driver"] .tl-profile .watermark {
+  opacity: .15;
+  filter: invert(1) saturate(0) brightness(130%);
+  pointer-events: none;
+}

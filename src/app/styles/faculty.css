@@ -1,0 +1,11 @@
+/* src/styles/faculty.css */
+/* Optional: faculty-specific theme overrides */
+[data-role="faculty"] {
+  /* example: slightly different brand shade */
+  /* --brand: #6b0c1c; */
+}
+
+/* Copy only the blocks faculty needs, scoped */
+[data-role="faculty"] .topbar { /* … same rules as driver or customized … */ }
+[data-role="faculty"] .sidebar { /* … */ }
+/* and so on: .card, .kpi, .app-shell, .tl-* (if used by faculty) */
