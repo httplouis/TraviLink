@@ -1,20 +1,26 @@
 "use client";
 
+import Link from "next/link";
 import { Search, Bell } from "lucide-react";
 
-export default function Topbar() {
+export default function Topbar({ title }: { title?: string }) {
   return (
     <header className="sticky top-0 z-40 w-full bg-[var(--brand)] text-white border-b border-white/10">
       <div className="flex items-center justify-between px-4 sm:px-6 py-2">
-        {/* Brand */}
-        <div className="flex items-center gap-2">
+        {/* Brand — now clickable to /driver with small gray “| Driver” */}
+        <Link href="/driver" className="flex items-center gap-2 group">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/15 font-semibold">
             TL
           </span>
-          <span className="hidden sm:block font-semibold tracking-wide">TraviLink</span>
-        </div>
+          <span className="hidden sm:flex items-baseline gap-2 font-semibold tracking-wide">
+            <span>TraviLink</span>
+            <span className="text-white/70 text-xs font-normal align-baseline">
+              | Driver
+            </span>
+          </span>
+        </Link>
 
-        {/* Search + Bell */}
+        {/* Right side: search + bell */}
         <div className="flex items-center gap-3">
           <div className="relative w-[220px] sm:w-[280px] md:w-[340px]">
             <input

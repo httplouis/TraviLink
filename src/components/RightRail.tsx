@@ -1,65 +1,60 @@
 "use client";
-import React from "react";
 
-type ProfilePanelProps = {
-  role?: "DRIVER" | "ADMIN" | "FACULTY" | string;
-  name?: string;
-  code?: string;
-  faculty?: string;
-  campus?: string;
-  watermarkSrc?: string; // e.g. "/euwhite.png" in /public
+import ProfilePanel from "@/components/ProfilePanel";
+import type { ComponentProps } from "react";
+import MiniCalendar from "@/components/MiniCalendar";
+
+/** Import the prop type from ProfilePanel for safety */
+type ProfilePanelProps = ComponentProps<typeof ProfilePanel>;
+
+type RightRailProps = {
+  /** Optional profile override; we’ll fill sane defaults */
+  profile?: Partial<ProfilePanelProps>;
+  /** KPIs shown above the calendar */
+  kpis?: {
+    requests: number;
+    online: number;
+    pending: number;
+  };
+  /** NOTE: tripsForCalendar is no longer used; MiniCalendar reads from localStorage */
 };
 
-function initials(full?: string) {
-  if (!full) return "DR"; // safe fallback
-  return full
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((s) => s[0]?.toUpperCase())
-    .join("");
+function KPI({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl bg-white ring-1 ring-neutral-200/70 shadow-sm p-4 text-center">
+      <div className="text-2xl font-semibold leading-tight">{value}</div>
+      <div className="mt-1 text-sm text-neutral-600">{label}</div>
+    </div>
+  );
 }
 
-export default function ProfilePanel({
-  role = "DRIVER",
-  name = "Driver",
-  code = "—",
-  faculty = "Faculty",
-  campus = "Lucena Campus",
-  watermarkSrc = "/euwhite.png",
-}: ProfilePanelProps) {
+export default function RightRail({
+  profile,
+  kpis = { requests: 5, online: 3, pending: 4 },
+}: RightRailProps) {
+  // Build a definite profile object for ProfilePanel
+  const p: ProfilePanelProps = {
+    role: profile?.role ?? "DRIVER",
+    name: profile?.name ?? "Driver",
+    code: profile?.code ?? "—",
+    faculty: profile?.faculty ?? "Driver",
+    campus: profile?.campus ?? "Lucena Campus",
+    watermarkSrc: profile?.watermarkSrc ?? "/euwhite.png",
+  };
+
   return (
-    <section className="relative overflow-hidden rounded-2xl bg-[#7A0E20] text-white">
-      {/* subtle watermark */}
-      <img
-        src={watermarkSrc}
-        alt=""
-        className="pointer-events-none select-none absolute right-[-24px] top-[-24px] h-40 w-40 opacity-15"
-      />
+    <aside className="w-full xl:w-[320px] shrink-0 space-y-4 xl:sticky xl:top-20">
+      <ProfilePanel {...p} />
 
-      <div className="p-5 sm:p-6 flex items-start gap-4">
-        {/* avatar */}
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/20 text-white font-semibold">
-          {initials(name)}
-        </div>
-
-        {/* identity */}
-        <div className="min-w-0">
-          <div className="text-xs uppercase tracking-wide opacity-90">Profile • {role}</div>
-          <div className="mt-0.5 text-lg font-semibold leading-tight truncate">{name}</div>
-          <div className="text-sm opacity-90">Code: {code}</div>
-
-          {/* chips */}
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium ring-1 ring-white/25">
-              {faculty}
-            </span>
-            <span className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium ring-1 ring-white/25">
-              {campus}
-            </span>
-          </div>
-        </div>
+      {/* KPIs */}
+      <div className="grid grid-cols-3 gap-3">
+        <KPI label="Active Requests" value={kpis.requests} />
+        <KPI label="Vehicles Online" value={kpis.online} />
+        <KPI label="Pending Approvals" value={kpis.pending} />
       </div>
-    </section>
+
+      {/* Mini calendar — no props */}
+      <MiniCalendar />
+    </aside>
   );
 }

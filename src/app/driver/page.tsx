@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -43,7 +44,7 @@ function MetricCard({
   value: number | string;
 }) {
   return (
-    <div className="rounded-xl bg-white p-4 shadow-sm">
+    <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-neutral-200/70">
       <div className="flex items-center gap-3">
         <div className="grid h-10 w-10 place-items-center rounded-lg bg-[#7a0019]/10 text-[#7a0019]">
           {icon}
@@ -90,6 +91,19 @@ function ActionCard({
 /* --------------------------------- Page --------------------------------- */
 
 export default function DriverDashboard() {
+  // Save trips so MiniCalendar (in right rail) can read and display green dots everywhere
+  useEffect(() => {
+    try {
+      const trips = UPCOMING.map((u) => ({
+        date: u.date.slice(0, 10),
+        label: `${u.location} (${u.vehicle})`,
+      }));
+      localStorage.setItem("travilink_trips", JSON.stringify(trips));
+      // trigger other tabs to refresh
+      window.dispatchEvent(new StorageEvent("storage", { key: "travilink_trips" }));
+    } catch {}
+  }, []);
+
   return (
     <>
       <PageHeader
@@ -108,82 +122,84 @@ export default function DriverDashboard() {
       />
 
       <PageBody>
-        {/* Metrics */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <MetricCard icon={<CheckCircle2 className="h-5 w-5" />} label="Trips" value={METRICS.trips} />
-          <MetricCard icon={<Activity className="h-5 w-5" />} label="Online" value={METRICS.online} />
-          <MetricCard icon={<Clock className="h-5 w-5" />} label="Pending" value={METRICS.pending} />
-        </div>
+        <div className="space-y-6">
+          {/* Metrics */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <MetricCard icon={<CheckCircle2 className="h-5 w-5" />} label="Trips" value={METRICS.trips} />
+            <MetricCard icon={<Activity className="h-5 w-5" />} label="Online" value={METRICS.online} />
+            <MetricCard icon={<Clock className="h-5 w-5" />} label="Pending" value={METRICS.pending} />
+          </div>
 
-        {/* Primary actions */}
-        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <ActionCard
-            icon={<CalendarDays className="h-5 w-5" />}
-            title="Upcoming Schedules"
-            desc="Preview your next trips with dates, time, and locations."
-            href="/driver/schedule"
-          />
-          <ActionCard
-            icon={<Wrench className="h-5 w-5" />}
-            title="Submit Maintenance"
-            desc="Create a quick maintenance log for your assigned vehicle."
-            href="/driver/maintenance"
-          />
-          <ActionCard
-            icon={<BusFront className="h-5 w-5" />}
-            title="Trip History"
-            desc="Review completed trips and past assignments."
-            href="/driver/history"
-          />
-        </div>
+          {/* Primary actions */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <ActionCard
+              icon={<CalendarDays className="h-5 w-5" />}
+              title="Upcoming Schedules"
+              desc="Preview your next trips with dates, time, and locations."
+              href="/driver/schedule"
+            />
+            <ActionCard
+              icon={<Wrench className="h-5 w-5" />}
+              title="Submit Maintenance"
+              desc="Create a quick maintenance log for your assigned vehicle."
+              href="/driver/maintenance/submit"
+            />
+            <ActionCard
+              icon={<BusFront className="h-5 w-5" />}
+              title="Trip History"
+              desc="Review completed trips and past assignments."
+              href="/driver/history"
+            />
+          </div>
 
-        {/* Main grid: Left = Upcoming, Right = Quick note */}
-        <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_.8fr]">
-          {/* LEFT: Upcoming */}
-          <section className="rounded-xl ring-1 ring-neutral-200/70 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-neutral-200/80 px-4 py-3">
-              <h2 className="font-medium">Upcoming</h2>
-              <Link href="/driver/schedule" className="text-sm text-[#7a0019]">
-                See all
-              </Link>
-            </div>
-            <div className="divide-y divide-neutral-200/70">
-              {UPCOMING.map((s) => (
-                <div
-                  key={s.id}
-                  className="flex items-center justify-between px-4 py-3 hover:bg-neutral-50/70 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-lg bg-neutral-100">
-                      <MapPin className="h-5 w-5 text-neutral-700" />
-                    </div>
-                    <div>
-                      <div className="text-sm text-neutral-500">{s.vehicle}</div>
-                      <div className="font-medium">{s.location}</div>
-                      <div className="text-sm text-neutral-600">{s.date}</div>
-                    </div>
-                  </div>
-                  <span className={`rounded px-2 py-1 text-xs ${tone(s.status)}`}>{s.status}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* RIGHT: Quick note */}
-          <section className="rounded-xl ring-1 ring-neutral-200/70 bg-white shadow-sm">
-            <div className="border-b border-neutral-200/80 px-4 py-3">
-              <h2 className="font-medium">Quick note</h2>
-            </div>
-            <div className="p-4">
-              <input
-                className="w-full rounded-xl border border-neutral-200/80 px-3 py-2 outline-none focus:ring-2 focus:ring-[#7a0019]/15 focus:border-[#7a0019]/60 placeholder:text-neutral-400"
-                placeholder="Add a quick action / note..."
-              />
-              <div className="mt-2 flex justify-end">
-                <button className="btn btn-outline">Save</button>
+          {/* Upcoming + Quick note */}
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            {/* Upcoming */}
+            <section className="rounded-xl ring-1 ring-neutral-200/70 bg-white shadow-sm">
+              <div className="flex items-center justify-between border-b border-neutral-200/80 px-4 py-3">
+                <h2 className="font-medium">Upcoming</h2>
+                <Link href="/driver/schedule" className="text-sm text-[#7a0019]">
+                  See all
+                </Link>
               </div>
-            </div>
-          </section>
+              <div className="divide-y divide-neutral-200/70">
+                {UPCOMING.map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex items-center justify-between px-4 py-3 hover:bg-neutral-50/70 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-10 w-10 place-items-center rounded-lg bg-neutral-100">
+                        <MapPin className="h-5 w-5 text-neutral-700" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-neutral-500">{s.vehicle}</div>
+                        <div className="font-medium">{s.location}</div>
+                        <div className="text-sm text-neutral-600">{s.date}</div>
+                      </div>
+                    </div>
+                    <span className={`rounded px-2 py-1 text-xs ${tone(s.status)}`}>{s.status}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Quick note */}
+            <section className="rounded-xl ring-1 ring-neutral-200/70 bg-white shadow-sm">
+              <div className="border-b border-neutral-200/80 px-4 py-3">
+                <h2 className="font-medium">Quick note</h2>
+              </div>
+              <div className="p-4">
+                <input
+                  className="w-full rounded-xl border border-neutral-200/80 px-3 py-2 outline-none focus:ring-2 focus:ring-[#7a0019]/15 focus:border-[#7a0019]/60 placeholder:text-neutral-400"
+                  placeholder="Add a quick action / note..."
+                />
+                <div className="mt-2 flex justify-end">
+                  <button className="btn btn-outline">Save</button>
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
       </PageBody>
     </>
