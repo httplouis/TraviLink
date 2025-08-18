@@ -1,4 +1,4 @@
-import { DRIVER } from "@/lib/mock";
+import { DRIVER } from "@/app/lib/mock";
 
 export default function DriverProfile() {
   return (

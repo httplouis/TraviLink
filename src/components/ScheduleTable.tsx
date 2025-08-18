@@ -1,4 +1,4 @@
-import { UPCOMING } from "@/lib/mock";
+import { UPCOMING } from "@/app/lib/mock";
 
 export default function ScheduleTable() {
   return (

@@ -1,6 +1,6 @@
 "use client";
 import { ClipboardList, Info, Wrench } from "lucide-react";
-import type { Vehicle } from "@/lib/mock";
+import type { Vehicle } from "@/app/lib/mock";
 
 function StatusPill({ s }: { s: Vehicle["status"] }) {
   const map = {
