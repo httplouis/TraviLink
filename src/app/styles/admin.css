@@ -1,0 +1,7 @@
+/* Admin-only custom tweaks (most styling is Tailwind) */
+[data-role="admin"] .hide-print { display: none; }
+
+@media (max-width: 640px) {
+  .admin-edge-fade-left { background: linear-gradient(90deg, #fafafa, transparent); }
+  .admin-edge-fade-right { background: linear-gradient(270deg, #fafafa, transparent); }
+}
