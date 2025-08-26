@@ -4,15 +4,25 @@ export function wait(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-export function getPasswordStrength(
-  pw: string
-): { score: 0 | 1 | 2 | 3; label: "weak" | "fair" | "medium" | "strong"; hint?: string } {
+type PasswordScore = 0 | 1 | 2 | 3;
+type PasswordStrength = {
+  score: PasswordScore;
+  label: "weak" | "fair" | "medium" | "strong";
+  hint?: string;
+};
+
+export function getPasswordStrength(pw: string): PasswordStrength {
   if (!pw) return { score: 0, label: "weak", hint: "Add a password." };
-  let score: 0 | 1 | 2 | 3 = 0;
-  if (pw.length >= 8) score++;
-  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-  if (/\d/.test(pw) || /[^A-Za-z0-9]/.test(pw)) score++;
-  const label = ["weak", "fair", "medium", "strong"][score] as "weak" | "fair" | "medium" | "strong";
+
+  let s = 0; // plain number while computing
+  if (pw.length >= 8) s += 1;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s += 1;
+  if (/\d/.test(pw) || /[^A-Za-z0-9]/.test(pw)) s += 1;
+
+  const score = (s > 3 ? 3 : s) as PasswordScore; // narrow to 0|1|2|3
+  const labels = ["weak", "fair", "medium", "strong"] as const;
+  const label = labels[score];
   const hint = score < 3 ? "Use 8+ chars, mix upper/lower, numbers or symbols." : undefined;
+
   return { score, label, hint };
 }
