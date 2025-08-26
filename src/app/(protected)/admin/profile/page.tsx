@@ -30,8 +30,8 @@ import {
 
 import AdminLeftNav from "@/components/admin/nav/AdminLeftNav";
 import Card from "@/components/common/Card";
-import LabeledInput from "@/components/forms/LabeledInput";
-import Toggle from "@/components/forms/Toggle";
+import LabeledInput from "@/components/admin/forms/LabeledInput";
+import Toggle from "@/components/admin/forms/Toggle";
 import CropperModal from "@/components/admin/profile/cropper/CropperModal";
 import ConfirmPasswordModal from "@/components/admin/profile/ConfirmPasswordModal";
 import AdminProfileToast from "@/components/admin/profile/AdminProfileToast";
