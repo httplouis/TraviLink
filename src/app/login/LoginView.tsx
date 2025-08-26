@@ -215,11 +215,7 @@ export default function LoginView({
       </div>
 
       {/* Classy maroon footer */}
-<footer className="w-full bg-red-900 text-white">
-  <div className="mx-auto max-w-6xl px-4 py-1.5 text-center text-[11px] tracking-wide">
-    © {new Date().getFullYear()} TraviLink · Enverga University
-  </div>
-</footer>
+
 
 
 
