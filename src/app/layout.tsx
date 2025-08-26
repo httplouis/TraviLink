@@ -1,6 +1,8 @@
 // src/app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
+<link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} crossOrigin="" />
+
 
 export const metadata: Metadata = {
   title: "TraviLink",
