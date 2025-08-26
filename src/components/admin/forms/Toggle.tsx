@@ -29,4 +29,3 @@ export default function Toggle({ checked, onChange, label, sub, leftIcon }: Prop
     </label>
   );
 }
-You sent
