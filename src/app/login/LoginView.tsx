@@ -200,6 +200,15 @@ export default function LoginView({
                   Register Account
                 </Link>
               </div>
+
+              <div className="mt-4 text-[11px] text-center text-gray-600">
+  <Link href="/privacy" className="hover:text-red-900 underline-offset-4 hover:underline">Privacy</Link>
+  {" "}•{" "}
+  <Link href="/terms" className="hover:text-red-900 underline-offset-4 hover:underline">Terms</Link>
+  {" "}•{" "}
+  <Link href="/contact" className="hover:text-red-900 underline-offset-4 hover:underline">Contact</Link>
+</div>
+
             </form>
           </section>
         </main>
