@@ -5,8 +5,18 @@ import type { Metadata } from "next";
 
 
 export const metadata: Metadata = {
-  title: "TraviLink",
-  description: "Campus transport scheduling & tracking system",
+  title: { default: "TraviLink", template: "%s • TraviLink" },
+  description: "University Vehicle Scheduling & Reservation Portal",
+  icons: {
+    icon: [
+      { url: "/vercel.svg" },
+      { url: "/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
+  manifest: "/site.webmanifest",      
+  themeColor: "#7f1d1d",            
 };
 
 export default function RootLayout({

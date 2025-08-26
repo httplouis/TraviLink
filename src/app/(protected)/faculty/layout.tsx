@@ -2,61 +2,64 @@
 
 import Link from "next/link";
 import { Bell, CircleUserRound } from "lucide-react";
-import { Page } from "@/components/common/Page";
 import FacultyNav from "@/components/faculty/Nav";
-import "@/app/styles/faculty.css";
+import RightRail from "@/components/faculty/RightRail"; // put your Profile + KPIs + MiniCalendar here
 
-
-
-export default function FacultyLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function FacultyLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Page>
-      {/* Top bar */}
-      <header className="sticky top-0 z-30 bg-white border-b">
-        <div className="mx-auto max-w-[1400px] px-4 md:px-6 h-14 flex items-center justify-between">
+    <div className="min-h-dvh bg-[var(--background)] text-[var(--foreground)]">
+      {/* FIXED MAROON TOP BAR */}
+      <header className="fixed inset-x-0 top-0 z-50 h-14 bg-[#7a0019] text-white">
+        <div className="flex h-full items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-3">
             <Link href="/" className="inline-flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-md bg-[#7a0019] text-white text-sm font-semibold">
-                F
-              </span>
+              <span className="grid h-8 w-8 place-items-center rounded-md bg-white text-[#7a0019] text-sm font-semibold">TL</span>
               <span className="font-medium">TraviLink</span>
             </Link>
-            <span className="text-neutral-400">•</span>
-            <span className="text-neutral-600">Faculty</span>
+            <span className="opacity-70">|</span>
+            <span className="opacity-90">Faculty</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/faculty/notifications"
-              className="relative rounded-full p-2 hover:bg-neutral-100"
-              aria-label="Notifications"
-            >
+          <div className="flex items-center gap-1">
+            <Link href="/faculty/notifications" className="relative rounded-full p-2 hover:bg-white/10" aria-label="Notifications">
               <Bell className="h-5 w-5" />
-              <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 rounded-full bg-[#7a0019] text-white text-[10px] leading-4 text-center px-[3px]">
-                2
-              </span>
+              <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-white px-[3px] text-[10px] leading-4 text-[#7a0019]">2</span>
             </Link>
-            <Link
-              href="/faculty/profile"
-              className="rounded-full p-2 hover:bg-neutral-100"
-              aria-label="Profile"
-            >
+            <Link href="/faculty/profile" className="rounded-full p-2 hover:bg-white/10" aria-label="Profile">
               <CircleUserRound className="h-6 w-6" />
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Shell */}
-      <div className="mx-auto max-w-[1400px] px-4 md:px-6 py-4 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-4">
-        <aside className="bg-white border rounded-lg p-3">
-          <FacultyNav />
+      {/* APP SHELL: full viewport height minus header; only center scrolls */}
+            <div
+        className="
+          pt-14
+          h-[calc(100dvh-56px)]
+          grid grid-cols-[260px_minmax(0,1fr)_360px]
+          gap-6
+          overflow-hidden
+        "
+      >
+        {/* LEFT NAV */} 
+        <aside className="h-full bg-white/90 border-r border-neutral-200">
+          <div className="h-full p-3">
+            <FacultyNav />
+          </div>
         </aside>
-        <main className="min-w-0">{children}</main>
+
+        {/* CENTER (only this scrolls) */}
+        <main className="min-w-0 h-full overflow-y-auto px-4 md:px-6">
+          <div className="mx-auto max-w-[1400px]">{children}</div>
+        </main>
+
+        {/* RIGHT RAIL — add min-w-0 so children can shrink */}
+        <aside className="h-full bg-white/90 border-l border-neutral-200 min-w-0">
+          <div className="h-full p-3">
+            <RightRail /> {/* see step 2 */}
+          </div>
+        </aside>
       </div>
-    </Page>
+    </div>
   );
 }
