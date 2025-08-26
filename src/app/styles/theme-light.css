@@ -1,0 +1,6 @@
+:root { color-scheme: light; }
+
+html, body {
+  background-color: #fafafa; /* neutral-50 */
+  color: #111827;            /* neutral-900 */
+}

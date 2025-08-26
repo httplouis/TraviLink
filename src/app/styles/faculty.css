@@ -9,3 +9,32 @@
 [data-role="faculty"] .topbar { /* … same rules as driver or customized … */ }
 [data-role="faculty"] .sidebar { /* … */ }
 /* and so on: .card, .kpi, .app-shell, .tl-* (if used by faculty) */
+
+/* responsive 7-column grid */
+.tl-cal .tl-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+/* Remove borders on sidebar nav items */
+@layer components {
+  /* your nav currently uses className="nav-item" */
+  .nav-item {
+    @apply border-0 shadow-none bg-transparent;  /* no border, no shadow, no card bg */
+  }
+  .nav-item:hover {
+    @apply bg-neutral-100;  /* subtle hover, keep if you like */
+  }
+  .nav-item-active {
+    @apply bg-[#7a0019] text-white;  /* active state */
+  }
+
+  /* If you added a left accent bar via ::before earlier, hide it globally… */
+  .nav-item::before { content: none; }
+  /* …or only show it for active */
+  /* .nav-item::before { content:none; }
+     .nav-item-active::before {
+       content:"";
+       @apply absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-[#7a0019];
+     } */
+}
