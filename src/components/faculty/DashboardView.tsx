@@ -11,12 +11,8 @@ import {
   MapPin,
   IdCard,
 } from "lucide-react";
-import MiniCalendar, { type CalendarEvent } from "@/components/faculty/MiniCalendar";
 
-
-
-
-
+/* ---------- Types ---------- */
 export type Status = "Pending" | "Approved" | "Assigned" | "Rejected";
 
 export type UpcomingItem = {
@@ -36,7 +32,7 @@ export type Profile = {
   code: string;
   role: "Faculty" | "Driver" | "Admin";
   campus: string;
-  avatar?: string; // optional url
+  avatar?: string;
 };
 
 const badgeTone = (s: Status) =>
@@ -48,6 +44,7 @@ const badgeTone = (s: Status) =>
     ? "bg-blue-100 text-blue-700"
     : "bg-neutral-100 text-neutral-700";
 
+/* ---------- Small UI blocks ---------- */
 function MetricCard({
   icon,
   label,
@@ -64,9 +61,7 @@ function MetricCard({
           {icon}
         </div>
         <div>
-          <div className="text-xs uppercase tracking-wide text-neutral-500">
-            {label}
-          </div>
+          <div className="text-xs uppercase tracking-wide text-neutral-500">{label}</div>
           <div className="text-lg font-semibold">{value}</div>
         </div>
       </div>
@@ -88,8 +83,9 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className="group relative block overflow-hidden rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:border-[#7a0019] hover:shadow-md"
+      className="group relative block h-full overflow-hidden rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:border-[#7a0019] hover:shadow-md"
     >
+      {/* top accent line */}
       <span className="pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-[#7a0019] transition-transform duration-300 group-hover:scale-x-100" />
       <div className="mb-3 grid h-12 w-12 place-items-center rounded-lg bg-[#7a0019]">
         <div className="text-white">{icon}</div>
@@ -104,15 +100,7 @@ function ActionCard({
   );
 }
 
-function SmallStat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="flex-1 rounded-xl bg-white p-3 text-center shadow-sm ring-1 ring-neutral-200/70">
-      <div className="text-2xl font-semibold">{value}</div>
-      <div className="mt-1 text-xs text-neutral-500">{label}</div>
-    </div>
-  );
-}
-
+/* kept for other pages if you reuse it */
 function ProfileCard({ profile }: { profile: Profile }) {
   return (
     <section className="rounded-xl bg-[#7a0019] text-white p-4 shadow-sm">
@@ -141,20 +129,17 @@ function ProfileCard({ profile }: { profile: Profile }) {
   );
 }
 
+/* ---------- Page View (center column only) ---------- */
 export default function DashboardView({
   metrics,
   upcoming,
   notifications,
-  profile,
-  rightStats,
-  events,
 }: {
   metrics: Metrics;
   upcoming: UpcomingItem[];
   notifications: NotificationItem[];
-  profile: Profile;
-  rightStats: { label: string; value: number }[];
-  events: CalendarEvent[];
+  profile: Profile; // kept in types for convenience; not rendered here
+  rightStats: { label: string; value: number }[]; // rendered by ProfileRail on the right
 }) {
   return (
     <div className="space-y-6">
@@ -172,112 +157,78 @@ export default function DashboardView({
         </div>
       </div>
 
-      {/* 3-column shell like your driver screen: 2 cols content + right rail */}
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
-        {/* MAIN (left two columns collapsed into one for simplicity) */}
-        <div className="space-y-6">
-          {/* metrics */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <MetricCard icon={<CalendarDays className="h-5 w-5" />} label="Upcoming Trips" value={metrics.upcoming} />
-            <MetricCard icon={<Timer className="h-5 w-5" />}         label="Pending Requests" value={metrics.pending} />
-            <MetricCard icon={<CheckCircle2 className="h-5 w-5" />}  label="Approved" value={metrics.approved} />
-          </div>
+      {/* Metrics */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <MetricCard icon={<CalendarDays className="h-5 w-5" />} label="Upcoming Trips" value={metrics.upcoming} />
+        <MetricCard icon={<Timer className="h-5 w-5" />}         label="Pending Requests" value={metrics.pending} />
+        <MetricCard icon={<CheckCircle2 className="h-5 w-5" />}  label="Approved"         value={metrics.approved} />
+      </div>
 
-          {/* primary actions */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <ActionCard
-              icon={<CalendarDays className="h-5 w-5" />}
-              title="Upcoming Schedules"
-              desc="Preview your next trips with dates, time, and locations."
-              href="/faculty/schedule"
-            />
-            <ActionCard
-              icon={<BusFront className="h-5 w-5" />}
-              title="Request a Trip"
-              desc="Create a request with pickup, destination and passenger count."
-              href="/faculty/request"
-            />
-            <ActionCard
-              icon={<Megaphone className="h-5 w-5" />}
-              title="Announcements"
-              desc="See approvals and schedule changes as they happen."
-              href="/faculty/notifications"
-            />
-          </div>
+      {/* Primary actions (equal height) */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 items-stretch">
+        <ActionCard
+          icon={<CalendarDays className="h-5 w-5" />}
+          title="Upcoming Schedules"
+          desc="Preview your next trips with dates, time, and locations."
+          href="/faculty/schedule"
+        />
+        <ActionCard
+          icon={<BusFront className="h-5 w-5" />}
+          title="Request a Trip"
+          desc="Create a request with pickup, destination and passenger count."
+          href="/faculty/request"
+        />
+        <ActionCard
+          icon={<Megaphone className="h-5 w-5" />}
+          title="Announcements"
+          desc="See approvals and schedule changes as they happen."
+          href="/faculty/notifications"
+        />
+      </div>
 
-          {/* Upcoming & Notifications */}
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <section className="rounded-xl bg-white shadow-sm ring-1 ring-neutral-200/70">
-              <div className="flex items-center justify-between border-b border-neutral-200/80 px-4 py-3">
-                <h2 className="font-medium">Upcoming</h2>
-                <Link href="/faculty/schedule" className="text-sm text-[#7a0019]">See all</Link>
-              </div>
-              <div className="divide-y divide-neutral-200/70">
-                {upcoming.map((s) => (
-                  <div
-                    key={s.id}
-                    className="flex items-center justify-between px-4 py-3 hover:bg-neutral-50/70 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="grid h-10 w-10 place-items-center rounded-lg bg-neutral-100">
-                        <MapPin className="h-5 w-5 text-neutral-700" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-neutral-500">{s.vehicle}</div>
-                        <div className="font-medium">{s.location}</div>
-                        <div className="text-sm text-neutral-600">{s.date}</div>
-                      </div>
-                    </div>
-                    <span className={`rounded px-2 py-1 text-xs ${badgeTone(s.status)}`}>{s.status}</span>
+      {/* Upcoming & Notifications */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <section className="rounded-xl bg-white shadow-sm ring-1 ring-neutral-200/70">
+          <div className="flex items-center justify-between border-b border-neutral-200/80 px-4 py-3">
+            <h2 className="font-medium">Upcoming</h2>
+            <Link href="/faculty/schedule" className="text-sm text-[#7a0019]">See all</Link>
+          </div>
+          <div className="divide-y divide-neutral-200/70">
+            {upcoming.map((s) => (
+              <div
+                key={s.id}
+                className="flex items-center justify-between px-4 py-3 hover:bg-neutral-50/70 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="grid h-10 w-10 place-items-center rounded-lg bg-neutral-100">
+                    <MapPin className="h-5 w-5 text-neutral-700" />
                   </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="rounded-xl bg-white shadow-sm ring-1 ring-neutral-200/70">
-              <div className="flex items-center justify-between border-b border-neutral-200/80 px-4 py-3">
-                <h2 className="font-medium">Notifications</h2>
-                <Link href="/faculty/notifications" className="text-sm text-[#7a0019]">View all</Link>
-              </div>
-              <div className="divide-y divide-neutral-200/70">
-                {notifications.map((n) => (
-                  <div key={n.id} className="px-4 py-3">
-                    <div className="text-sm">{n.text}</div>
-                    <div className="text-xs text-neutral-500">{n.time}</div>
+                  <div>
+                    <div className="text-sm text-neutral-500">{s.vehicle}</div>
+                    <div className="font-medium">{s.location}</div>
+                    <div className="text-sm text-neutral-600">{s.date}</div>
                   </div>
-                ))}
+                </div>
+                <span className={`rounded px-2 py-1 text-xs ${badgeTone(s.status)}`}>{s.status}</span>
               </div>
-            </section>
-          </div>
-        </div>
-
-        {/* RIGHT RAIL */}
-        <aside className="space-y-4">
-          <ProfileCard profile={profile} />
-
-          <div className="grid grid-cols-3 gap-3">
-            {rightStats.map((s) => (
-              <SmallStat key={s.label} label={s.label} value={s.value} />
             ))}
           </div>
+        </section>
 
-          <section className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-neutral-200/70">
-            <MiniCalendar events={events} />
-            <div className="mt-2 flex items-center justify-between px-1 text-xs text-neutral-500">
-              <div className="flex items-center gap-3">
-                <span className="inline-flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-[#22863a]" /> Trips
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-[#c23b22]" /> Maintenance
-                </span>
+        <section className="rounded-xl bg-white shadow-sm ring-1 ring-neutral-200/70">
+          <div className="flex items-center justify-between border-b border-neutral-200/80 px-4 py-3">
+            <h2 className="font-medium">Notifications</h2>
+            <Link href="/faculty/notifications" className="text-sm text-[#7a0019]">View all</Link>
+          </div>
+          <div className="divide-y divide-neutral-200/70">
+            {notifications.map((n) => (
+              <div key={n.id} className="px-4 py-3">
+                <div className="text-sm">{n.text}</div>
+                <div className="text-xs text-neutral-500">{n.time}</div>
               </div>
-              <Link href="/faculty/schedule" className="text-[#7a0019] hover:underline">
-                full calendar
-              </Link>
-            </div>
-          </section>
-        </aside>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

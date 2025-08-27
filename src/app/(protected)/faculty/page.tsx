@@ -4,8 +4,6 @@ import DashboardView, {
   NotificationItem,
   Profile,
 } from "@/components/faculty/DashboardView";
-import { type CalendarEvent } from "@/components/faculty/MiniCalendar";
-
 
 export default async function FacultyDashboardPage() {
   // TODO: fetch from Supabase later
@@ -27,21 +25,12 @@ export default async function FacultyDashboardPage() {
     code: "FAC-11234",
     role: "Faculty",
     campus: "Lucena Campus",
-    // avatar: "/some-avatar.png",
   };
 
   const rightStats = [
     { label: "Active Requests", value: 5 },
     { label: "Vehicles Online", value: 3 },
     { label: "Pending Approvals", value: 4 },
-  ];
-
-  const events: CalendarEvent[] = [
-    { id: "e1", date: "2025-12-25", title: "Trip to Tagaytay", color: "bg-[#22863a]" }, // trip
-    { id: "e2", date: "2025-12-28", title: "Trip to MSEUF Lucena", color: "bg-[#22863a]" },
-    { id: "e3", date: "2026-01-10", title: "Trip to Batangas", color: "bg-[#22863a]" },
-    // if you ever mark maintenance in faculty view:
-    { id: "e4", date: "2025-12-27", title: "Vehicle Maintenance", color: "bg-[#c23b22]" },
   ];
 
   return (
@@ -51,7 +40,6 @@ export default async function FacultyDashboardPage() {
       notifications={notifications}
       profile={profile}
       rightStats={rightStats}
-      events={events}
     />
   );
 }
