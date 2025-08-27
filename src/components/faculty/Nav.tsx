@@ -25,7 +25,7 @@ export default function FacultyNav() {
     exact ? pathname === href : (pathname === href || pathname.startsWith(href + "/"));
 
   return (
-    <nav aria-label="Faculty menu" className="space-y-2">
+    <nav aria-label="Faculty menu" className="space-y-3">
       {items.map(({ href, label, Icon, exact }) => {
         const active = isActive(href, exact);
         return (
@@ -34,7 +34,6 @@ export default function FacultyNav() {
             href={href}
             className={[
               "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-              "ring-1 ring-neutral-200/70",
               active
                 ? "bg-neutral-100 text-[#7a0019]"
                 : "bg-white text-neutral-700 hover:bg-neutral-50",
