@@ -173,15 +173,36 @@ export default function LoginView({
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-gray-300 focus:ring-2 focus:ring-red-900 focus:border-red-900 p-3 rounded-md outline-none text-sm shadow-sm text-gray-900 placeholder-gray-400"
-                  required
-                />
-              </div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+
+  <div className="relative group">
+    {/* lock icon (decorative, left side) */}
+    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-900 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm-3 8V6a3 3 0 016 0v3H9z"/>
+      </svg>
+    </span>
+
+    <input
+      type="password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      required
+      placeholder="••••••••"
+      className="
+        w-full rounded-md border border-gray-300 p-3 pr-3 pl-10
+        text-sm outline-none shadow-sm text-gray-900
+        focus:ring-2 focus:ring-red-900 focus:border-red-900
+        placeholder:text-gray-400/80 placeholder:font-semibold
+        placeholder:tracking-widest placeholder:[letter-spacing:.35em]
+        transition-colors
+      "
+    />
+  </div>
+
+  
+</div>
+
 
               {err && <p className="text-sm text-red-600 mb-3">{err}</p>}
 
