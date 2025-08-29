@@ -1,8 +1,8 @@
 "use client";
 
-import ProfilePanel from "@/components/ProfilePanel";
+import ProfilePanel from "@/components/driver/ProfilePanel";
 import type { ComponentProps } from "react";
-import MiniCalendar from "@/components/MiniCalendar";
+import MiniCalendar from "@/components/driver/MiniCalendar";
 
 /** Import the prop type from ProfilePanel for safety */
 type ProfilePanelProps = ComponentProps<typeof ProfilePanel>;
