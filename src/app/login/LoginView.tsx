@@ -24,29 +24,25 @@ export default function LoginView({
   return (
     // lock screen & prevent page scroll
     <div className="fixed inset-0 flex flex-col font-sans bg-gradient-to-br from-gray-100 to-gray-200 h-dvh overflow-hidden">
-    {/* Floating Help Button (bottom-left) */}
-<button
-  type="button"
-  onClick={() => (window.location.href = "mailto:ictd@mseuf.edu.ph")}
-  aria-label="Need Help?"
-  className="group fixed bottom-6 left-8 z-50 grid place-items-center
+      {/* Floating Help Button (bottom-left) */}
+      <button
+        type="button"
+        onClick={() => (window.location.href = "mailto:ictd@mseuf.edu.ph")}
+        aria-label="Need Help?"
+        className="group fixed bottom-6 left-8 z-50 grid place-items-center
              w-11 h-11 rounded-full bg-white text-red-900 shadow-md
              transition-transform duration-200 hover:scale-110 hover:shadow-lg
              focus-visible:scale-110"
->
-  <span className="text-lg font-extrabold leading-none">?</span>
+      >
+        <span className="text-lg font-extrabold leading-none">?</span>
 
-  {/* tooltip */}
-  <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2
+        {/* tooltip */}
+        <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2
                    rounded-md bg-red-900 text-white text-xs px-2 py-1
                    opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-    Need Help?
-  </span>
-</button>
-
-
-
-
+          Need Help?
+        </span>
+      </button>
 
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar Branding Strip */}
@@ -130,19 +126,17 @@ export default function LoginView({
                 </p>
               </div>
             </div>
-
-            {/* Removed the old "Need Help?" section */}
           </section>
 
           {/* RIGHT: login card with image background behind it */}
-         <section
-  className="w-full lg:w-[45%] relative flex items-center justify-center overflow-hidden"
-  style={{
-    backgroundImage: "url('/pattern-light.jpg')",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-  }}
->
+          <section
+            className="w-full lg:w-[45%] relative flex items-center justify-center overflow-hidden"
+            style={{
+              backgroundImage: "url('/pattern-light.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
             {/* dark overlay for readability */}
             <div className="absolute inset-0 bg-black/65" />
 
@@ -172,37 +166,37 @@ export default function LoginView({
                 />
               </div>
 
+              {/* ✅ Styled password block inserted */}
               <div className="mb-6">
-  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
 
-  <div className="relative group">
-    {/* lock icon (decorative, left side) */}
-    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-900 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm-3 8V6a3 3 0 016 0v3H9z"/>
-      </svg>
-    </span>
+                <div className="relative group">
+                  {/* lock icon (decorative, left side) */}
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm-3 8V6a3 3 0 016 0v3H9z"/>
+                    </svg>
+                  </span>
 
-    <input
-      type="password"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      required
-      placeholder="••••••••"
-      className="
-        w-full rounded-md border border-gray-300 p-3 pr-3 pl-10
-        text-sm outline-none shadow-sm text-gray-900
-        focus:ring-2 focus:ring-red-900 focus:border-red-900
-        placeholder:text-gray-400/80 placeholder:font-semibold
-        placeholder:tracking-widest placeholder:[letter-spacing:.35em]
-        transition-colors
-      "
-    />
-  </div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="••••••••"
+                    className="
+                      w-full rounded-md border border-gray-300 p-3 pr-3 pl-10
+                      text-sm outline-none shadow-sm text-gray-900
+                      focus:ring-2 focus:ring-red-900 focus:border-red-900
+                      placeholder:text-gray-400/80 placeholder:font-semibold
+                      placeholder:tracking-widest placeholder:[letter-spacing:.35em]
+                      transition-colors
+                    "
+                  />
+                </div>
 
-  
-</div>
-
+                
+              </div>
 
               {err && <p className="text-sm text-red-600 mb-3">{err}</p>}
 
@@ -223,23 +217,16 @@ export default function LoginView({
               </div>
 
               <div className="mt-4 text-[11px] text-center text-gray-600">
-  <Link href="/privacy" className="hover:text-red-900 underline-offset-4 hover:underline">Privacy</Link>
-  {" "}•{" "}
-  <Link href="/terms" className="hover:text-red-900 underline-offset-4 hover:underline">Terms</Link>
-  {" "}•{" "}
-  <Link href="/contact" className="hover:text-red-900 underline-offset-4 hover:underline">Contact</Link>
-</div>
-
+                <Link href="/privacy" className="hover:text-red-900 underline-offset-4 hover:underline">Privacy</Link>
+                {" "}•{" "}
+                <Link href="/terms" className="hover:text-red-900 underline-offset-4 hover:underline">Terms</Link>
+                {" "}•{" "}
+                <Link href="/contact" className="hover:text-red-900 underline-offset-4 hover:underline">Contact</Link>
+              </div>
             </form>
           </section>
         </main>
       </div>
-
-      {/* Classy maroon footer */}
-
-
-
-
     </div>
   );
 }
