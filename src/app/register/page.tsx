@@ -25,8 +25,11 @@ function normalizePhone(p: string) {
 export default function RegisterPage() {
   const [role, setRole] = useState<RolePick>("faculty");
 
-  // Faculty state
-  const [fName, setFName] = useState("");
+  // Faculty state (split name fields)
+  const [fFirst, setFFirst] = useState("");
+  const [fMiddle, setFMiddle] = useState("");
+  const [fLast, setFLast] = useState("");
+  const [fSuffix, setFSuffix] = useState("");
   const [fDept, setFDept] = useState("");
   const [fBirthdate, setFBirthdate] = useState("");
   const [fAddress, setFAddress] = useState("");
@@ -39,7 +42,10 @@ export default function RegisterPage() {
   const [dPhone, setDPhone] = useState("");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [dOtp, setDOtp] = useState("");
-  const [dName, setDName] = useState("");
+  const [dFirst, setDFirst] = useState("");
+  const [dMiddle, setDMiddle] = useState("");
+  const [dLast, setDLast] = useState("");
+  const [dSuffix, setDSuffix] = useState("");
   const [dAddress, setDAddress] = useState("");
 
   // UI
@@ -58,7 +64,10 @@ export default function RegisterPage() {
     e.preventDefault();
     setErr(null); setMsg(null);
 
-    if (fName.trim().length < 2) return setErr("Please enter your full name.");
+    const nameFull = [fFirst, fMiddle, fLast, fSuffix].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+
+    if (fFirst.trim().length < 1 || fLast.trim().length < 1)
+      return setErr("Please enter your first and last name.");
     if (!emailRegex.test(fEmail)) return setErr("Please enter a valid email address.");
     if (!fBirthdate) return setErr("Please select your birthdate.");
     if (!fAddress.trim()) return setErr("Please enter your address.");
@@ -68,7 +77,7 @@ export default function RegisterPage() {
     try {
       setLoading(true);
 
-      // small duplication check nicety
+      // small duplication nicety
       const dupRes = await supabase.auth.signInWithPassword({ email: fEmail, password: "__dummy__" });
       if (!dupRes.error) {
         setErr("This email is already registered. Please log in.");
@@ -78,7 +87,19 @@ export default function RegisterPage() {
       const { error } = await supabase.auth.signUp({
         email: fEmail,
         password: fPw,
-        options: { data: { role: "faculty", name: fName, department: fDept, birthdate: fBirthdate, address: fAddress } },
+        options: {
+          data: {
+            role: "faculty",
+            first_name: fFirst,
+            middle_name: fMiddle || null,
+            last_name: fLast,
+            suffix: fSuffix || null,
+            name_full: nameFull,
+            department: fDept || null,
+            birthdate: fBirthdate,
+            address: fAddress,
+          },
+        },
       });
       if (error) {
         const m = error.message.toLowerCase();
@@ -147,7 +168,7 @@ export default function RegisterPage() {
       return;
     }
     const normalized = normalizePhone(dPhone);
-    setVerifiedPhone(normalized);        // <-- store verified phone once
+    setVerifiedPhone(normalized);
     setDStep("profile");
   }
 
@@ -155,18 +176,21 @@ export default function RegisterPage() {
     e.preventDefault();
     setErr(null); setMsg(null);
     if (!verifiedPhone) return setErr("Missing verified phone. Please restart driver signup.");
-    if (dName.trim().length < 2) return setErr("Please enter your full name.");
+    if (dFirst.trim().length < 1 || dLast.trim().length < 1) return setErr("Please enter your first and last name.");
     if (!dAddress.trim()) return setErr("Please enter your address.");
 
     try {
       setLoading(true);
-      // Dev-only server route that creates/re-uses the auth user and upserts public.users
       const res = await fetch("/api/dev/driver/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone: verifiedPhone,
-          name: dName,
+          name: [dFirst, dMiddle, dLast, dSuffix].filter(Boolean).join(" ").replace(/\s+/g, " ").trim(),
+          first_name: dFirst,
+          middle_name: dMiddle || null,
+          last_name: dLast,
+          suffix: dSuffix || null,
           address: dAddress,
         }),
       });
@@ -194,7 +218,10 @@ export default function RegisterPage() {
       onResend={justSignedUpEmail ? resendConfirmation : undefined}
 
       /* faculty */
-      fName={fName} setFName={setFName}
+      fFirst={fFirst} setFFirst={setFFirst}
+      fMiddle={fMiddle} setFMiddle={setFMiddle}
+      fLast={fLast} setFLast={setFLast}
+      fSuffix={fSuffix} setFSuffix={setFSuffix}
       fDept={fDept} setFDept={setFDept}
       fBirthdate={fBirthdate} setFBirthdate={setFBirthdate}
       fAddress={fAddress} setFAddress={setFAddress}
@@ -207,7 +234,10 @@ export default function RegisterPage() {
       dStep={dStep}
       dPhone={dPhone} setDPhone={setDPhone}
       dOtp={dOtp} setDOtp={setDOtp}
-      dName={dName} setDName={setDName}
+      dFirst={dFirst} setDFirst={setDFirst}
+      dMiddle={dMiddle} setDMiddle={setDMiddle}
+      dLast={dLast} setDLast={setDLast}
+      dSuffix={dSuffix} setDSuffix={setDSuffix}
       dAddress={dAddress} setDAddress={setDAddress}
       verifiedPhone={verifiedPhone}
       onDriverSendOtp={driverSendOtp}
