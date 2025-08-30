@@ -1,50 +1,53 @@
+// src/components/admin/nav/AdminLeftNav.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+type Item = { href: string; label: string; icon?: React.ReactNode };
+
+const NAV: Item[] = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/requests", label: "Requests" },
+  { href: "/admin/schedule", label: "Schedule" },
+  { href: "/admin/drivers", label: "Drivers" },
+  { href: "/admin/vehicles", label: "Vehicles" },
+  { href: "/admin/maintenance", label: "Maintenance" },
+  { href: "/admin/track", label: "Track / Live" },
+  { href: "/admin/history", label: "History / Logs" },
+  { href: "/admin/reports", label: "Reports / Exports" },
+  { href: "/admin/settings", label: "Settings" },
+];
+
 export default function AdminLeftNav() {
   const pathname = usePathname();
-  const items = [
-    { label: "Dashboard", href: "/admin" },
-    { label: "Requests", href: "/admin/requests" },
-    { label: "Schedule", href: "/admin/schedule" },
-    { label: "Profile", href: "/admin/profile" },
-    { label: "Maintenance", href: "/admin/maintenance" },
-    { label: "Track", href: "/admin/track" },
-    { label: "History", href: "/admin/history" },
-    { label: "Settings", href: "/admin/settings" },
-  ];
-  const isActive = (href: string) =>
-    pathname === href || (href !== "/admin" && pathname.startsWith(href));
 
   return (
-    <aside className="hidden md:block md:col-span-3 xl:col-span-3 2xl:col-span-3 h-full">
-      <div className="rounded-lg border border-neutral-200 bg-gradient-to-b from-white to-neutral-50 p-3 h-full flex flex-col sticky top-[64px]">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="h-8 w-8 rounded-full bg-[#7A0010] text-white grid place-items-center text-sm font-bold">
-            TL
-          </div>
-          <span className="font-semibold">TraviLink</span>
-        </div>
-
-        <nav className="text-sm space-y-0.5">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center justify-between rounded-md px-3 py-2 transition-all will-change-transform ${
-                isActive(item.href)
-                  ? "bg-[#7A0010]/10 text-[#7A0010] ring-1 ring-[#7A0010]/15 shadow-sm"
-                  : "hover:bg-neutral-50 hover:-translate-y-0.5 hover:shadow-sm text-neutral-800"
-              }`}
-            >
-              <span className="truncate">{item.label}</span>
-              <span className="text-neutral-300 group-hover:text-neutral-400">›</span>
-            </Link>
-          ))}
-        </nav>
-      </div>
-    </aside>
+    <nav className="p-3">
+      <div className="mb-2 px-3 text-[11px] font-semibold tracking-wider text-neutral-500">TRAVILINK</div>
+      <ul className="space-y-1">
+        {NAV.map((item) => {
+          const active = pathname === item.href || (item.href !== "/admin" && pathname?.startsWith(item.href));
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className={[
+                  "group nav-item",
+                  active ? "nav-item-active ring-1 ring-[var(--admin-brand)]/30" : "hover:bg-neutral-100"
+                ].join(" ")}
+              >
+                {/* small bullet icon (kept inline to avoid extra deps) */}
+                <span className={[
+                  "h-2 w-2 rounded-full",
+                  active ? "bg-white" : "bg-neutral-300 group-hover:bg-neutral-400"
+                ].join(" ")} />
+                <span className="truncate">{item.label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

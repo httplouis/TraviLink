@@ -1,7 +1,38 @@
-/* Admin-only custom tweaks (most styling is Tailwind) */
-[data-role="admin"] .hide-print { display: none; }
+/* Admin-only theme; does NOT touch other pages */
 
-@media (max-width: 640px) {
-  .admin-edge-fade-left { background: linear-gradient(90deg, #fafafa, transparent); }
-  .admin-edge-fade-right { background: linear-gradient(270deg, #fafafa, transparent); }
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* --- Admin nav/profile styling inspired by Faculty --- */
+
+/* maroon top bar */
+[data-role="admin"] .tl-topbar{
+  background: var(--admin-brand, #7a0019);
+  color:#fff;
+  border-bottom:1px solid rgba(0,0,0,.15);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.12);
 }
+
+/* grid shell / columns keep as-is from your previous CSS */
+[data-role="admin"] .tl-shell{ display:grid; grid-template-columns: 264px 1fr 320px; height: calc(100dvh - 56px); }
+@media (max-width: 1279px){
+  [data-role="admin"] .tl-shell{ grid-template-columns: 264px 1fr; }
+}
+
+/* left nav look & active pill */
+[data-role="admin"] .tl-leftnav{ background:#fff; border-right:1px solid var(--admin-line,#e5e7eb); }
+[data-role="admin"] .nav-item{ display:flex; align-items:center; gap:.6rem; padding:.5rem .75rem; border-radius:.5rem; font-size:.9rem; color:#374151; }
+[data-role="admin"] .nav-item-active{ background: var(--admin-brand,#7a0019); color:#fff; }
+
+/* right rail */
+[data-role="admin"] .tl-rail{ background:#fff; border-left:1px solid var(--admin-line,#e5e7eb); }
+
+/* cards */
+[data-role="admin"] .tl-card{ border:1px solid var(--admin-line,#e5e7eb); border-radius: .75rem; background:#fff; box-shadow: 0 6px 18px rgba(17,24,39,.06); }
+[data-role="admin"] .tl-card-header{ padding:.5rem .75rem; border-bottom:1px solid var(--admin-line,#e5e7eb); background:rgba(255,255,255,.75); backdrop-filter: saturate(120%) blur(6px); border-top-left-radius:.75rem; border-top-right-radius:.75rem; }
+[data-role="admin"] .tl-card-body{ padding:.75rem; }
+
+/* KPI tile helper */
+[data-role="admin"] .kpi-tile{ border:1px solid var(--admin-line,#e5e7eb); border-radius:.75rem; background:#fff; }
+[data-role="admin"] .kpi-tile .title{ color:#6b7280; }
