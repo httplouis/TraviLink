@@ -1,37 +1,50 @@
-"use client";
-import KpiTiles from "@/components/admin/dashboard/containers/KpiTiles";
-import LiveNow from "@/components/admin/dashboard/containers/LiveNow";
-import UpcomingTables from "@/components/admin/dashboard/containers/UpcomingTables";
-import HealthRail from "@/components/admin/dashboard/containers/HealthRail";
-import MapSnapshot from "@/components/admin/dashboard/containers/MapSnapshot";
+import KpiRow from "@/components/admin/dashboard/containers/KpiRow";
+import RequestsTable from "@/components/admin/dashboard/ui/RequestsTable";
+import ChartCard from "@/components/admin/dashboard/ui/ChartCard";
+import DashboardActions from "@/components/admin/dashboard/ui/DashboardActions";
+import TripLogsTable from "@/components/admin/dashboard/ui/TripLogsTable";
+import DeptUsageChart from "@/components/admin/dashboard/ui/DeptUsageChart";
+import { getDashboardData } from "@/lib/admin/repo";
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const {
+    kpis,
+    requestsByDay,
+    statusBreakdown,
+    utilization,
+    deptUsage,
+    recentRequests,
+    recentTrips,
+  } = await getDashboardData();
+
   return (
-    <>
-      {/* action strip under topbar */}
-      <div className="sticky top-0 z-10 -mx-1 px-1 pb-2 bg-gradient-to-b from-white/80 to-white/60 backdrop-blur border-b border-neutral-200/70">
-        <div className="flex flex-wrap items-center gap-2">
-          <button className="h-9 rounded-md border px-3 text-sm hover:bg-neutral-50">+ New Request</button>
-          <button className="h-9 rounded-md border px-3 text-sm hover:bg-neutral-50">+ Schedule</button>
-          <button className="h-9 rounded-md border px-3 text-sm hover:bg-neutral-50">+ Maintenance</button>
-        </div>
+    <section className="space-y-6">
+      {/* KPI summary */}
+      <KpiRow items={kpis} />
+
+      {/* Analytics Row 1 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ChartCard title="Requests (last 8 days)" type="line" data={requestsByDay} xKey="date" yKey="count" />
+        <ChartCard title="Status Breakdown" type="bar" data={statusBreakdown} xKey="status" yKey="count" />
       </div>
 
-      <div className="space-y-4 pt-3">
-        <KpiTiles />
-
-        {/* grid: main + right health rail */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
-          <div className="xl:col-span-8 space-y-4">
-            <LiveNow />
-            <UpcomingTables />
-          </div>
-          <div className="xl:col-span-4 space-y-4">
-            <HealthRail />
-            <MapSnapshot />
-          </div>
-        </div>
+      {/* Analytics Row 2 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ChartCard title="Vehicle Utilization (%)" type="bar" data={utilization} xKey="label" yKey="percent" />
+        <DeptUsageChart data={deptUsage} />
       </div>
-    </>
+
+      {/* Requests Table */}
+      <div className="space-y-3">
+        <DashboardActions rows={recentRequests} />
+        <RequestsTable rows={recentRequests} />
+      </div>
+
+      {/* Recent Trips (3 rows only) */}
+      <div className="space-y-3">
+        <div className="text-sm font-medium">Recent Trip Logs</div>
+        <TripLogsTable rows={recentTrips.slice(0, 3)} />
+      </div>
+    </section>
   );
 }
