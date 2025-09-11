@@ -1,6 +1,8 @@
+// src/lib/data/driver.ts
 import { supabase } from "@/lib/supabaseClient";
-import type { DriverScheduleRow } from "@/app/types/schedule";
-
+import type { DriverScheduleRow } from "@/app/types/schedule";   
+import { ymdhmLocal } from "@/lib/data/dates";               
+     
 export async function getDriverSchedule(userId: string): Promise<DriverScheduleRow[]> {
   // sample shape – adjust table/column names to your schema
   const { data, error } = await supabase
@@ -12,12 +14,14 @@ export async function getDriverSchedule(userId: string): Promise<DriverScheduleR
 
   if (error) throw error;
 
-  return (data ?? []).map((t) => ({
-    id: t.id,
-    date: new Date(t.start_time).toISOString().slice(0, 16).replace("T", " "),
-    location: t.destination,
+  return (data ?? []).map((t: any) => ({
+    id: String(t.id),
+    
+    date: ymdhmLocal(t.start_time),
+
+    location: t.destination ?? "",
     vehicle: (t.vehicle_type ?? "Bus") as DriverScheduleRow["vehicle"],
-    driver: t.driver?.name ?? "",
+    driver: t?.driver?.name ?? "",
     status: (t.status ?? "Pending") as DriverScheduleRow["status"],
   }));
 }

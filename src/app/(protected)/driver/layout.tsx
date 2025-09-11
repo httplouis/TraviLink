@@ -1,25 +1,43 @@
 "use client";
+
 import React from "react";
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
-import ProfilePanel from "@/components/ProfilePanel";
-import MiniCalendar from "@/components/MiniCalendar";
+import Sidebar from "@/components/driver/Sidebar";              // container (below)
+import Topbar from "@/components/driver/Topbar";
+import ProfilePanel from "@/components/driver/ProfilePanel";
+import MiniCalendar from "@/components/driver/MiniCalendar";
 import "@/app/styles/driver.css";
+
+const TOPBAR_H = 64; // adjust if your Topbar is not h-16
 
 export default function DriverLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div data-role="driver" className="min-h-screen flex flex-col bg-[var(--bg)]">
-      <Topbar title="Driver Transport Portal" />
+    <div data-role="driver" className="min-h-screen bg-[var(--bg)]">
+      {/* keep the topbar visible while center scrolls */}
+      <div className="sticky top-0 z-40">
+        <Topbar title="Driver Transport Portal" />
+      </div>
 
-      <div className="flex flex-1">
-        <Sidebar />
+      {/* 3-col grid: [sidebar | main-scroll | right]  */}
+      <div
+        className="grid gap-0"
+        style={{
+          gridTemplateColumns: "260px 1fr 360px",
+          height: `calc(100vh - ${TOPBAR_H}px)`, // lock height under the topbar
+        }}
+      >
+        {/* LEFT: sidebar — fixed, no scroll */}
+        <aside className="border-r border-neutral-200 bg-white">
+          <Sidebar />
+        </aside>
 
-        <main className="app-main flex-1 p-5 grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
-          {/* main content */}
+        {/* MIDDLE: the ONLY scrollable area */}
+        <main className="overflow-y-auto p-5">
           <div className="min-w-0">{children}</div>
+        </main>
 
-          {/* right rail */}
-          <aside className="w-full lg:sticky lg:top-20 space-y-4">
+        {/* RIGHT: profile + mini calendar — fixed, no scroll */}
+        <aside className="hidden lg:block p-5">
+          <div className="space-y-4">
             <div className="tl-profile">
               <ProfilePanel
                 role="DRIVER"
@@ -47,10 +65,9 @@ export default function DriverLayout({ children }: { children: React.ReactNode }
               </div>
             </div>
 
-            {/* Mini calendar — no props */}
             <MiniCalendar />
-          </aside>
-        </main>
+          </div>
+        </aside>
       </div>
     </div>
   );

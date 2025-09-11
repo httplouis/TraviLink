@@ -26,7 +26,10 @@ export default function RegisterPage() {
   const [role, setRole] = useState<RolePick>("faculty");
 
   // Faculty state
-  const [fName, setFName] = useState("");
+  const [fFirst, setFFirst] = useState("");
+  const [fMiddle, setFMiddle] = useState("");
+  const [fLast, setFLast] = useState("");
+  const [fSuffix, setFSuffix] = useState("");
   const [fDept, setFDept] = useState("");
   const [fBirthdate, setFBirthdate] = useState("");
   const [fAddress, setFAddress] = useState("");
@@ -34,12 +37,15 @@ export default function RegisterPage() {
   const [fPw, setFPw] = useState("");
   const [fPwConfirm, setFPwConfirm] = useState("");
 
-  // Driver state
+  // Driver state (dev OTP flow)
   const [dStep, setDStep] = useState<DriverStep>("phone");
   const [dPhone, setDPhone] = useState("");
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [dOtp, setDOtp] = useState("");
-  const [dName, setDName] = useState("");
+  const [dFirst, setDFirst] = useState("");
+  const [dMiddle, setDMiddle] = useState("");
+  const [dLast, setDLast] = useState("");
+  const [dSuffix, setDSuffix] = useState("");
   const [dAddress, setDAddress] = useState("");
 
   // UI
@@ -58,7 +64,11 @@ export default function RegisterPage() {
     e.preventDefault();
     setErr(null); setMsg(null);
 
-    if (fName.trim().length < 2) return setErr("Please enter your full name.");
+    const nameFull = [fFirst, fMiddle, fLast, fSuffix]
+      .filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+
+    if (fFirst.trim().length < 1 || fLast.trim().length < 1)
+      return setErr("Please enter your first and last name.");
     if (!emailRegex.test(fEmail)) return setErr("Please enter a valid email address.");
     if (!fBirthdate) return setErr("Please select your birthdate.");
     if (!fAddress.trim()) return setErr("Please enter your address.");
@@ -68,57 +78,43 @@ export default function RegisterPage() {
     try {
       setLoading(true);
 
-      // small duplication check nicety
-      const dupRes = await supabase.auth.signInWithPassword({ email: fEmail, password: "__dummy__" });
-      if (!dupRes.error) {
-        setErr("This email is already registered. Please log in.");
-        return;
-      }
-
+      // sign up (no dummy precheck)
       const { error } = await supabase.auth.signUp({
         email: fEmail,
         password: fPw,
-        options: { data: { role: "faculty", name: fName, department: fDept, birthdate: fBirthdate, address: fAddress } },
+        options: {
+          data: {
+            role: "faculty",
+            first_name: fFirst,
+            middle_name: fMiddle || null,
+            last_name: fLast,
+            suffix: fSuffix || null,
+            name_full: nameFull,         // goes to user_metadata (OK)
+            department: fDept || null,
+            birthdate: fBirthdate,
+            address: fAddress,
+          },
+        },
       });
+
       if (error) {
-        const m = error.message.toLowerCase();
-        if (m.includes("already registered")) {
-          setErr("This email is already registered. Please log in or reset your password.");
+        const m = (error.message || "").toLowerCase();
+        if (m.includes("already")) {
+          setErr("This email is already registered. Try logging in or resetting your password.");
           return;
         }
-        if (m.includes("rate limit")) {
-          setErr("Too many attempts. Please wait and try again.");
+        if (m.includes("rate")) {
+          setErr("Too many attempts. Please wait a few minutes and try again.");
           return;
         }
-        throw error;
+        setErr(error.message || "Sign up failed.");
+        return;
       }
 
       setJustSignedUpEmail(fEmail);
       setMsg("If this email is new, we sent a confirmation link. If it’s already registered, please check your inbox (and spam) or try logging in / resetting your password.");
     } catch (e: any) {
-      setErr(e.message ?? "Registration failed.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function resendConfirmation() {
-    if (!justSignedUpEmail) return;
-    setErr(null); setMsg(null);
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.resend({ type: "signup", email: justSignedUpEmail });
-      if (error) {
-        const m = (error.message || "").toLowerCase();
-        if (m.includes("already confirmed")) {
-          setErr("This email is already confirmed. You can log in now.");
-          return;
-        }
-        throw error;
-      }
-      setMsg("Confirmation email sent. Please check your inbox (and spam).");
-    } catch (e: any) {
-      setErr(e.message ?? "Could not resend confirmation.");
+      setErr(e?.message ?? "Registration failed.");
     } finally {
       setLoading(false);
     }
@@ -128,7 +124,6 @@ export default function RegisterPage() {
   function driverSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setErr(null); setMsg(null);
-
     const normalized = normalizePhone(dPhone);
     if (!/^\+63\d{10}$/.test(normalized)) {
       setErr("Please enter a valid PH mobile (e.g., 09XXXXXXXXX).");
@@ -141,13 +136,12 @@ export default function RegisterPage() {
   function driverVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     setErr(null); setMsg(null);
-
     if (dOtp.trim() !== "1234") {
       setErr("Invalid code. (Dev mode: the code is 1234)");
       return;
     }
     const normalized = normalizePhone(dPhone);
-    setVerifiedPhone(normalized);        // <-- store verified phone once
+    setVerifiedPhone(normalized);
     setDStep("profile");
   }
 
@@ -155,18 +149,22 @@ export default function RegisterPage() {
     e.preventDefault();
     setErr(null); setMsg(null);
     if (!verifiedPhone) return setErr("Missing verified phone. Please restart driver signup.");
-    if (dName.trim().length < 2) return setErr("Please enter your full name.");
+    if (dFirst.trim().length < 1 || dLast.trim().length < 1) return setErr("Please enter your first and last name.");
     if (!dAddress.trim()) return setErr("Please enter your address.");
 
     try {
       setLoading(true);
-      // Dev-only server route that creates/re-uses the auth user and upserts public.users
+
+      // NOTICE: we are NOT sending name_full or name_last_first here
       const res = await fetch("/api/dev/driver/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone: verifiedPhone,
-          name: dName,
+          first_name: dFirst,
+          middle_name: dMiddle || null,
+          last_name: dLast,
+          suffix: dSuffix || null,
           address: dAddress,
         }),
       });
@@ -191,10 +189,32 @@ export default function RegisterPage() {
       loading={loading}
       err={err}
       msg={msg}
-      onResend={justSignedUpEmail ? resendConfirmation : undefined}
+      onResend={justSignedUpEmail ? async () => {
+        setErr(null); setMsg(null);
+        try {
+          setLoading(true);
+          const { error } = await supabase.auth.resend({ type: "signup", email: justSignedUpEmail! });
+          if (error) {
+            const m = (error.message || "").toLowerCase();
+            if (m.includes("already confirmed")) {
+              setErr("This email is already confirmed. You can log in now.");
+              return;
+            }
+            throw error;
+          }
+          setMsg("Confirmation email sent. Please check your inbox (and spam).");
+        } catch (e: any) {
+          setErr(e.message ?? "Could not resend confirmation.");
+        } finally {
+          setLoading(false);
+        }
+      } : undefined}
 
       /* faculty */
-      fName={fName} setFName={setFName}
+      fFirst={fFirst} setFFirst={setFFirst}
+      fMiddle={fMiddle} setFMiddle={setFMiddle}
+      fLast={fLast} setFLast={setFLast}
+      fSuffix={fSuffix} setFSuffix={setFSuffix}
       fDept={fDept} setFDept={setFDept}
       fBirthdate={fBirthdate} setFBirthdate={setFBirthdate}
       fAddress={fAddress} setFAddress={setFAddress}
@@ -207,7 +227,10 @@ export default function RegisterPage() {
       dStep={dStep}
       dPhone={dPhone} setDPhone={setDPhone}
       dOtp={dOtp} setDOtp={setDOtp}
-      dName={dName} setDName={setDName}
+      dFirst={dFirst} setDFirst={setDFirst}
+      dMiddle={dMiddle} setDMiddle={setDMiddle}
+      dLast={dLast} setDLast={setDLast}
+      dSuffix={dSuffix} setDSuffix={setDSuffix}
       dAddress={dAddress} setDAddress={setDAddress}
       verifiedPhone={verifiedPhone}
       onDriverSendOtp={driverSendOtp}

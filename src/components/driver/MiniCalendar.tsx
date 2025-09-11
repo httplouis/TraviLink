@@ -8,6 +8,11 @@ type CalEvent = { date: string; type: "trip" | "maintenance"; label?: string };
 const MAINT_KEY = "travilink_maintenance";
 const TRIPS_KEY = "travilink_trips";
 
+// helpers – local YYYY-MM-DD (no UTC conversion)
+const pad2 = (n: number) => String(n).padStart(2, "0");
+const ymdLocal = (d: Date) =>
+  `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
 export default function MiniCalendar() {
   const today = new Date();
   const [view, setView] = useState({ y: today.getFullYear(), m: today.getMonth() });
@@ -23,7 +28,7 @@ export default function MiniCalendar() {
         const list = JSON.parse(rawM) as { date: string; vehicle: string; type: string }[];
         all.push(
           ...list.map((i) => ({
-            date: i.date,
+            date: i.date.slice(0, 10), // normalize
             type: "maintenance" as const,
             label: `${i.vehicle.replace("-", " ").toUpperCase()} — ${i.type}`,
           }))
@@ -38,7 +43,7 @@ export default function MiniCalendar() {
         const trips = JSON.parse(rawT) as { date: string; label?: string }[];
         all.push(
           ...trips.map((t) => ({
-            date: t.date.slice(0, 10),
+            date: t.date.slice(0, 10), // normalize
             type: "trip" as const,
             label: t.label || "Trip",
           }))
@@ -79,10 +84,13 @@ export default function MiniCalendar() {
     setView((v) => (v.m === 11 ? { y: v.y + 1, m: 0 } : { y: v.y, m: v.m + 1 }));
   }
 
+  // ✅ compare using local YYYY-MM-DD, not toISOString()
   function eventsFor(d: Date) {
-    const key = d.toISOString().slice(0, 10);
+    const key = ymdLocal(d);
     return events.filter((e) => e.date === key);
   }
+
+  const todayKey = ymdLocal(new Date());
 
   return (
     <section className="rounded-xl ring-1 ring-neutral-200/70 bg-white shadow-sm">
@@ -105,7 +113,7 @@ export default function MiniCalendar() {
       <div className="grid grid-cols-7 gap-1 p-3 pt-0">
         {days.map((d, i) => {
           const inMonth = d.getMonth() === view.m;
-          const isToday = d.toDateString() === new Date().toDateString();
+          const isToday = ymdLocal(d) === todayKey;
           const evts = eventsFor(d);
           const title = evts.map((e) => e.label || (e.type === "trip" ? "Trip" : "Maintenance")).join("\n");
 

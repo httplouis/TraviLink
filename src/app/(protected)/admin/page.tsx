@@ -179,10 +179,7 @@ export default function AdminDashboardPage() {
       <div style={scaleStyles} className="h-full">
         <Header onToggleNotifs={() => setNotifOpen((o) => !o)} unread={unread} notifOpen={notifOpen} />
 
-        <div className="flex items-center justify-between px-4 py-2 border-b border-neutral-200 bg-white/80 backdrop-blur">
-  <Header onToggleNotifs={() => setNotifOpen((o) => !o)} unread={unread} notifOpen={notifOpen} />
-  <LogoutButton />
-</div>
+        
         
         <main
           className="min-h-0 w-full px-2 sm:px-4 py-3 grid grid-cols-12 gap-2 sm:gap-3 md:gap-4 overflow-hidden"
