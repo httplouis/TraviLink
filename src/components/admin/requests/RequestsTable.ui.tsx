@@ -20,10 +20,20 @@ export default function RequestsTableUI({
   onRowClick?: (row: RequestRow) => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
+  onApproveRow?: (id: string) => void;   // NEW
+  onRejectRow?: (id: string) => void;    
 }) {
   const idsOnPage = rows.map((r) => r.id);
   const allChecked = idsOnPage.every((id) => selectedIds.has(id)) && idsOnPage.length > 0;
   const indeterminate = !allChecked && idsOnPage.some((id) => selectedIds.has(id));
+
+  function onApproveRow(id: string): void {
+    throw new Error("Function not implemented.");
+  }
+
+  function onRejectRow(id: string): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <div className="overflow-x-auto rounded-xl border bg-white">
@@ -78,19 +88,21 @@ export default function RequestsTableUI({
               <Td className="max-w-[420px] truncate">{r.purpose}</Td>
               <Td className="tabular-nums">{r.date}</Td>
               <Td>{statusTag(r.status)}</Td>
-              <Td
-                className="text-right"
-                onClick={(e: React.MouseEvent<HTMLTableCellElement>) => e.stopPropagation()}
-              >
-                {r.status === "Pending" ? (
-                  <div className="space-x-2">
-                    <button className="rounded bg-green-600 px-2 py-1 text-xs text-white">Approve</button>
-                    <button className="rounded bg-red-600 px-2 py-1 text-xs text-white">Reject</button>
-                  </div>
-                ) : (
-                  <span className="text-neutral-400">—</span>
-                )}
-              </Td>
+              <Td className="text-right" onClick={(e) => e.stopPropagation()}>
+  {r.status === "Pending" ? (
+    <div className="space-x-2">
+      <button className="rounded bg-green-600 px-2 py-1 text-xs text-white" onClick={() => onApproveRow?.(r.id)}>
+        Approve
+      </button>
+      <button className="rounded bg-red-600 px-2 py-1 text-xs text-white" onClick={() => onRejectRow?.(r.id)}>
+        Reject
+      </button>
+    </div>
+  ) : (
+    <span className="text-neutral-400">—</span>
+  )}
+</Td>
+
             </tr>
           ))}
         </tbody>

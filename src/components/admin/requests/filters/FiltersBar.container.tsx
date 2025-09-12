@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FiltersBarUI from "./FiltersBar.ui";
 import { FilterState, RequestRow } from "../types";
 
@@ -9,7 +9,7 @@ const DEFAULTS: FilterState = {
   search: "",
   from: undefined,
   to: undefined,
-  mode: "auto", // live by default
+  mode: "auto",
 };
 
 export default function FiltersBarContainer({
@@ -22,41 +22,42 @@ export default function FiltersBarContainer({
   const [applied, setApplied] = useState<FilterState>(DEFAULTS);
   const [draft, setDraft] = useState<FilterState>(DEFAULTS);
 
-  // compute filtered using APPLIED state
+  // compute filtered with APPLIED state (pure)
   const filtered = useMemo(() => filterRows(rows, applied), [rows, applied]);
 
-  // notify parent when filtered set changes
-  useMemo(() => {
-    onFiltered(filtered, applied, draft);
-  }, [filtered, applied, draft, onFiltered]);
+  // keep latest onFiltered in a ref so effect doesn’t re-run just because its identity changes
+  const onFilteredRef = useRef(onFiltered);
+  useEffect(() => {
+    onFilteredRef.current = onFiltered;
+  }, [onFiltered]);
 
-  // live update in auto mode
+  // call parent AFTER render, and only when data actually changed
+  const prevPayload = useRef<string>("");
+  useEffect(() => {
+    const payloadKey = JSON.stringify({
+      ids: filtered.map((r) => r.id), // stable, cheap enough
+      applied,
+      draft,
+    });
+    if (payloadKey !== prevPayload.current) {
+      prevPayload.current = payloadKey;
+      onFilteredRef.current(filtered, applied, draft);
+    }
+  }, [filtered, applied, draft]);
+
   function onDraftChange(next: Partial<FilterState>) {
     const nextDraft = { ...draft, ...next };
     setDraft(nextDraft);
-    if (nextDraft.mode === "auto") {
-      setApplied(nextDraft);
-    }
+    if (nextDraft.mode === "auto") setApplied(nextDraft);
   }
+  function onApply() { setApplied(draft); }
+  function onResetDraft() { setDraft(applied); }
+  function onClearAll() { setDraft(DEFAULTS); setApplied(DEFAULTS); }
 
-  function onApply() {
-    setApplied(draft);
-  }
-
-  function onResetDraft() {
-    setDraft(applied); // go back to last applied
-  }
-
-  function onClearAll() {
-    setDraft(DEFAULTS);
-    setApplied(DEFAULTS);
-  }
-
-  const activeChips = chipsFrom(applied, () => setApplied(DEFAULTS), (pat) => {
-    // clear individual chip by pattern key
-    const cleared: FilterState = { ...applied, ...pat };
+  const activeChips = chipsFrom(applied, () => setApplied(DEFAULTS), (patch) => {
+    const cleared: FilterState = { ...applied, ...patch };
     setApplied(cleared);
-    if (draft.mode === "apply") setDraft(cleared);
+    setDraft((d) => (d.mode === "apply" ? cleared : d));
   });
 
   return (
@@ -72,20 +73,16 @@ export default function FiltersBarContainer({
   );
 }
 
-/* ---------- helpers ---------- */
-
+/* helpers */
 function filterRows(rows: RequestRow[], f: FilterState): RequestRow[] {
   return rows.filter((r) => {
     const statusOk = f.status === "All" || r.status === f.status;
     const deptOk = f.dept === "All" || r.dept === f.dept;
     const search = f.search.trim().toLowerCase();
     const searchOk =
-      !search ||
-      r.id.toLowerCase().includes(search) ||
-      r.purpose.toLowerCase().includes(search);
-    const fromOk = !f.from || r.date >= f.from;
-    const toOk = !f.to || r.date <= f.to;
-    // AND condition across fields
+      !search || r.id.toLowerCase().includes(search) || r.purpose.toLowerCase().includes(search);
+    const fromOk = !f.from || r.date >= f.from!;
+    const toOk = !f.to || r.date <= f.to!;
     return statusOk && deptOk && searchOk && fromOk && toOk;
   });
 }
@@ -97,11 +94,9 @@ function chipsFrom(
 ) {
   const chips: { label: string; onClear: () => void }[] = [];
   if (f.status !== "All") chips.push({ label: `Status: ${f.status}`, onClear: () => clearOne({ status: "All" }) });
-  if (f.dept !== "All")   chips.push({ label: `Dept: ${f.dept}`,     onClear: () => clearOne({ dept: "All" }) });
-  if (f.from)             chips.push({ label: `From: ${f.from}`,     onClear: () => clearOne({ from: undefined }) });
-  if (f.to)               chips.push({ label: `To: ${f.to}`,         onClear: () => clearOne({ to: undefined }) });
-  if (f.search)           chips.push({ label: `Search: ${f.search}`, onClear: () => clearOne({ search: "" }) });
-  // allow Clear all if any
-  if (chips.length > 1) chips.push({ label: "•", onClear: clearAll }); // visual spacer for consistency
+  if (f.dept !== "All") chips.push({ label: `Dept: ${f.dept}`, onClear: () => clearOne({ dept: "All" }) });
+  if (f.from) chips.push({ label: `From: ${f.from}`, onClear: () => clearOne({ from: undefined }) });
+  if (f.to) chips.push({ label: `To: ${f.to}`, onClear: () => clearOne({ to: undefined }) });
+  if (f.search) chips.push({ label: `Search: ${f.search}`, onClear: () => clearOne({ search: "" }) });
   return chips;
 }
