@@ -27,3 +27,28 @@ export function triggerDownload(filename: string, content: string, mime = "text/
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+
+import { RequestRow } from "../types";
+
+export function exportRequestsCsv(rows: RequestRow[], filename = "requests.csv") {
+  const headers = ["ID","Department","Purpose","Date","Status","Requester","Vehicle","Driver"];
+  const body = rows.map(r => [
+    r.id, r.dept, quote(r.purpose), r.date, r.status,
+    r.requester ?? "", r.vehicle ?? "", r.driver ?? ""
+  ].join(","));
+  const blob = new Blob(
+    [headers.join(","), "\n", body.join("\n")],
+    { type: "text/csv;charset=utf-8;" }
+  );
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function quote(s: string) {
+  const needs = /[",\n]/.test(s);
+  return needs ? `"${s.replace(/"/g,'""')}"` : s;
+}
