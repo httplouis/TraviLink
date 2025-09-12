@@ -29,7 +29,7 @@ export function triggerDownload(filename: string, content: string, mime = "text/
 }
 
 
-import { RequestRow } from "../types";
+// import { RequestRow } from "../types";
 
 export function exportRequestsCsv(rows: RequestRow[], filename = "requests.csv") {
   const headers = ["ID","Department","Purpose","Date","Status","Requester","Vehicle","Driver"];
