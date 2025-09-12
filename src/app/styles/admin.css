@@ -88,3 +88,12 @@
   * { box-shadow: none !important; }
   .print\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
+
+@media print {
+  [data-role="admin"] .tl-leftnav,
+  [data-role="admin"] .tl-topbar { display: none !important; }
+  [data-role="admin"] .tl-shell { grid-template-columns: 1fr !important; height: auto !important; }
+  [data-role="admin"] .tl-main { overflow: visible !important; background: #fff !important; }
+  table { page-break-inside: auto; }
+  tr, td, th { page-break-inside: avoid; page-break-after: auto; }
+}

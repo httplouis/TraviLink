@@ -18,3 +18,12 @@ export async function getRequestsData() {
   return mockRequests();
 }
 
+// lib/admin/repo.ts
+export async function listRequests(query: {
+  status?: string; dept?: string; search?: string; from?: string; to?: string;
+  page?: number; pageSize?: number;
+}): Promise<{ rows: RequestRow[]; total: number }>;
+
+export async function getRequest(id: string): Promise<RequestRow>;
+export async function updateRequest(id: string, patch: Partial<RequestRow>): Promise<RequestRow>;
+export async function bulkUpdate(ids: string[], patch: Partial<RequestRow>): Promise<void>;
