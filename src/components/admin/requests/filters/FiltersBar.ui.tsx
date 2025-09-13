@@ -1,129 +1,135 @@
 "use client";
-import { FilterState } from "../types";
 
-type Chip = { label: string; onClear: () => void };
+import * as React from "react";
+import type { FilterState } from "@/lib/admin/types";
 
 type Props = {
-  draft: FilterState;             // the form's current values
-  activeChips: Chip[];            // chips to render under the bar
+  // full "controlled draft" API
+  draft: FilterState;
+  activeChips: any[];
   onDraftChange: (next: Partial<FilterState>) => void;
   onClearAll: () => void;
   onApply: () => void;
   onResetDraft: () => void;
-  resultCount?: number;           // optional: show count on Apply
+  resultCount: number;
 };
 
+const statuses: Array<FilterState["status"]> = ["All", "Pending", "Approved", "Completed", "Rejected"];
+const depts: Array<FilterState["dept"]> = ["All", "CCMS", "HR", "Registrar", "Finance"];
+
 export default function FiltersBarUI({
-  draft, activeChips, onDraftChange, onClearAll, onApply, onResetDraft, resultCount,
+  draft,
+  activeChips,
+  onDraftChange,
+  onClearAll,
+  onApply,
+  onResetDraft,
+  resultCount,
 }: Props) {
-  const active = activeChips.length > 0;
+  const set = <K extends keyof FilterState>(k: K, val: FilterState[K]) =>
+    onDraftChange({ [k]: val } as Partial<FilterState>);
+
+  // IMPORTANT: always pass "" to <input type="date"> when "cleared"
+  const fromVal = draft.from || "";
+  const toVal = draft.to || "";
 
   return (
-    <div className="space-y-3">
-      {/* primary controls row */}
-      <div className="flex flex-wrap gap-3 items-center">
-        {/* search */}
+    <div className="flex flex-wrap items-end gap-3 rounded-xl border bg-white p-3">
+      <div className="flex flex-col">
+        <label className="text-xs text-neutral-500">Status</label>
+        <select className="rounded border px-2 py-1" value={draft.status} onChange={(e) => set("status", e.target.value as any)}>
+          {statuses.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col">
+        <label className="text-xs text-neutral-500">Department</label>
+        <select className="rounded border px-2 py-1" value={draft.dept} onChange={(e) => set("dept", e.target.value as any)}>
+          {depts.map((d) => (
+            <option key={d} value={d}>{d}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col">
+        <label className="text-xs text-neutral-500">From</label>
         <input
-          type="text"
-          placeholder="Search by ID or Purpose…"
-          className="border rounded px-3 py-2 text-sm flex-1 min-w-[220px]"
+          className="rounded border px-2 py-1"
+          type="date"
+          value={fromVal}
+          onChange={(e) => set("from", e.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className="text-xs text-neutral-500">To</label>
+        <input
+          className="rounded border px-2 py-1"
+          type="date"
+          value={toVal}
+          onChange={(e) => set("to", e.target.value)}
+        />
+      </div>
+
+      <div className="flex grow flex-col">
+        <label className="text-xs text-neutral-500">Search</label>
+        <input
+          className="w-full rounded border px-2 py-1"
+          placeholder="Search by id, purpose, dept..."
           value={draft.search}
-          onChange={(e) => onDraftChange({ search: e.target.value })}
+          onChange={(e) => set("search", e.target.value)}
         />
+      </div>
 
-        {/* status */}
-        <select
-          value={draft.status}
-          onChange={(e) => onDraftChange({ status: e.target.value as FilterState["status"] })}
-          className="border rounded px-2 py-2 text-sm"
-        >
-          <option>All</option>
-          <option>Pending</option>
-          <option>Approved</option>
-          <option>Completed</option>
-          <option>Rejected</option>
-        </select>
-
-        {/* dept */}
-        <select
-          value={draft.dept}
-          onChange={(e) => onDraftChange({ dept: e.target.value as FilterState["dept"] })}
-          className="border rounded px-2 py-2 text-sm"
-        >
-          <option>All</option>
-          <option>CCMS</option>
-          <option>HR</option>
-          <option>Registrar</option>
-          <option>Finance</option>
-        </select>
-
-        {/* date range */}
-        <input
-          type="date"
-          value={draft.from ?? ""}
-          onChange={(e) => onDraftChange({ from: e.target.value })}
-          className="border rounded px-2 py-2 text-sm"
-        />
-        <input
-          type="date"
-          value={draft.to ?? ""}
-          onChange={(e) => onDraftChange({ to: e.target.value })}
-          className="border rounded px-2 py-2 text-sm"
-        />
-
-        {/* mode: auto vs apply */}
-        <select
-          value={draft.mode}
-          onChange={(e) => onDraftChange({ mode: e.target.value as FilterState["mode"] })}
-          className="border rounded px-2 py-2 text-xs text-neutral-600"
-          title="Apply mode"
-        >
+      <div className="flex items-center gap-2">
+        <label className="text-xs text-neutral-500">Mode</label>
+        <select className="rounded border px-2 py-1" value={draft.mode} onChange={(e) => set("mode", e.target.value as any)}>
           <option value="auto">Auto</option>
           <option value="apply">Apply</option>
         </select>
 
-        {/* apply/reset visible when mode=apply */}
-        {draft.mode === "apply" && (
-          <div className="flex gap-2">
-            <button
-              onClick={onApply}
-              className="px-3 py-2 rounded bg-neutral-900 text-white text-sm"
-            >
-              Apply{typeof resultCount === "number" ? ` (${resultCount})` : ""}
-            </button>
-            <button
-              onClick={onResetDraft}
-              className="px-3 py-2 rounded bg-neutral-200 text-sm"
-            >
-              Reset
-            </button>
-          </div>
-        )}
-      </div>
+        <button
+          className="rounded border px-3 py-1 text-sm"
+          onClick={onApply}
+          disabled={draft.mode !== "apply"}
+        >
+          Apply
+        </button>
 
-      {/* active chips + clear all */}
-      {active && (
-        <div className="flex flex-wrap items-center gap-2">
-          {activeChips.map((c, i) => (
-            <span
-              key={i}
-              className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1 text-sm"
-            >
-              {c.label}
-              <button
-                className="text-neutral-500 hover:text-neutral-800"
-                onClick={c.onClear}
-                aria-label={`Remove ${c.label}`}
-              >
-                ×
-              </button>
-            </span>
-          ))}
-          <button onClick={onClearAll} className="text-xs text-red-600 underline">
-            Clear all
-          </button>
-        </div>
-      )}
+        {/* NEW: Clear hard-resets everything (including dates) */}
+        <button className="rounded border px-3 py-1 text-sm" onClick={onClearAll}>
+          Clear
+        </button>
+      </div>
+          // Inside FiltersBarUI toolbar, near Apply/Clear
+<div className="flex items-end gap-2 ml-auto">
+  <button
+    className="rounded border px-3 py-1 text-sm"
+    onClick={() => window.dispatchEvent(new CustomEvent("requests.saveView"))}
+  >
+    Save View
+  </button>
+  <select
+    className="rounded border px-2 py-1 text-sm"
+    onChange={(e) =>
+      window.dispatchEvent(new CustomEvent("requests.applyView", { detail: e.target.value }))
+    }
+    defaultValue=""
+  >
+    <option value="" disabled>
+      Saved Views
+    </option>
+    {(JSON.parse(localStorage.getItem("tl.requests.views") || "[]") as Array<{name:string, state:any}>).map((v) => (
+      <option key={v.name} value={v.name}>{v.name}</option>
+    ))}
+  </select>
+</div>
+
+      <div className="ml-auto text-xs text-neutral-500">
+        Showing {resultCount}
+      </div>
     </div>
   );
 }

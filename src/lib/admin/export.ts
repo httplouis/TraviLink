@@ -1,4 +1,4 @@
-import type { RequestRow } from "@/components/admin/requests/types";
+import type { RequestRow } from "@/lib/admin/types";
 
 // converts rows to CSV string
 export function rowsToCsv(rows: RequestRow[]): string {

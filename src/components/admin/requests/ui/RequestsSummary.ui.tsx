@@ -1,4 +1,4 @@
-import { RequestsSummary } from "./types";
+import { RequestsSummary } from "@/lib/admin/types";
 
 export default function RequestsSummaryUI({ summary }: { summary: RequestsSummary }) {
   return (

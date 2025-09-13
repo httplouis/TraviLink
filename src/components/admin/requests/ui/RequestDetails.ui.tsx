@@ -1,5 +1,5 @@
 "use client";
-import { RequestRow } from "./types";
+import { RequestRow } from "../types";
 
 type Props = {
   open: boolean;

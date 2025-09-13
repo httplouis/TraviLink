@@ -1,7 +1,10 @@
 export type KPI = { label: string; value: number | string; caption?: string };
 
 export type TrendPoint = { date: string; count: number };
-export type StatusPoint = { status: "Pending"|"Approved"|"Completed"|"Rejected"; count: number };
+export type StatusPoint = {
+  status: "Pending" | "Approved" | "Completed" | "Rejected";
+  count: number;
+};
 
 // NEW
 export type UtilizationPoint = { label: string; percent: number }; // e.g. vehicle or dept
@@ -10,7 +13,7 @@ export type TripLogRow = {
   vehicle: string;
   driver: string;
   department: string;
-  date: string;       // YYYY-MM-DD
+  date: string; // YYYY-MM-DD
   distanceKm: number; // mock for now
 };
 
@@ -44,11 +47,10 @@ export type FilterState = {
 };
 
 export type Pagination = {
-  page: number;       // 1-based
-  pageSize: number;   // rows per page
-  total: number;      // total filtered rows
+  page: number; // 1-based
+  pageSize: number; // rows per page
+  total: number; // total filtered rows
 };
-
 
 export type DeptUsage = { dept: string; count: number };
 
@@ -61,4 +63,3 @@ export type DashboardData = {
   recentRequests: RequestRow[];
   recentTrips: TripLogRow[];
 };
-
