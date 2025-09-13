@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import React from "react";
 
 type Props = {
   email: string;
@@ -12,6 +13,27 @@ type Props = {
   onSubmit: (e: React.FormEvent) => void;
 };
 
+/* Bigger + clearer inputs */
+const Input = (props: React.ComponentProps<"input">) => (
+  <input
+    {...props}
+    autoComplete="off"
+    className={
+      "w-full h-12 border border-gray-300/90 bg-white/95 " +
+      "rounded-lg px-4 pr-4 outline-none text-[15px] shadow-sm text-gray-900 placeholder-gray-500 " +
+      "focus:ring-2 focus:ring-red-900/80 focus:border-red-900 " +
+      "transition-all"
+      + (props.className ? " " + props.className : "")
+    }
+  />
+);
+
+const Label = ({ children }: { children: React.ReactNode }) => (
+  <label className="block text-[14px] font-semibold text-gray-800 mb-1.5">
+    {children}
+  </label>
+);
+
 export default function LoginView({
   email,
   password,
@@ -22,210 +44,165 @@ export default function LoginView({
   onSubmit,
 }: Props) {
   return (
-    // lock screen & prevent page scroll
-    <div className="fixed inset-0 flex flex-col font-sans bg-gradient-to-br from-gray-100 to-gray-200 h-dvh overflow-hidden">
-      {/* Floating Help Button (bottom-left) */}
+    <div className="relative min-h-screen flex flex-col">
+      {/* Background */}
+      <div
+        className="fixed inset-0 -z-20 bg-cover bg-center"
+        style={{ backgroundImage: "url('/pattern-light.jpg')" }}
+      />
+      <div className="fixed inset-0 -z-10 bg-black/60" />
+
+      {/* Floating Help Button */}
       <button
         type="button"
         onClick={() => (window.location.href = "mailto:ictd@mseuf.edu.ph")}
         aria-label="Need Help?"
         className="group fixed bottom-6 left-8 z-50 grid place-items-center
-             w-11 h-11 rounded-full bg-white text-red-900 shadow-md
-             transition-transform duration-200 hover:scale-110 hover:shadow-lg
-             focus-visible:scale-110"
+                   w-12 h-12 rounded-full bg-white text-red-900 shadow-md
+                   transition-transform duration-200 hover:scale-110 hover:shadow-lg
+                   focus-visible:scale-110"
       >
         <span className="text-lg font-extrabold leading-none">?</span>
-
-        {/* tooltip */}
-        <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2
-                   rounded-md bg-red-900 text-white text-xs px-2 py-1
-                   opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+        <span
+          className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2
+                     rounded-md bg-red-900 text-white text-xs px-2 py-1
+                     opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+        >
           Need Help?
         </span>
       </button>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar Branding Strip */}
-        <aside className="bg-red-900 text-white w-24 flex flex-col items-center py-8 shadow-lg">
-          <div className="mb-8">
-            <div className="bg-white rounded-full p-3 shadow-md">
-              <div className="w-8 h-8 bg-red-900 rounded-full" />
-            </div>
-          </div>
-          <div className="rotate-90 text-sm tracking-[0.3em] font-bold uppercase mt-16">
-            TRAVILINK
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          {/* LEFT information panel */}
-          <section className="relative w-full lg:w-[55%] bg-white px-14 py-12 border-r border-gray-300 flex flex-col justify-between overflow-y-auto lg:overflow-hidden">
-            <div className="absolute inset-0 bg-[url('/pattern-light.png')] opacity-10 pointer-events-none" />
-
-            <div className="flex-1 relative z-10">
-              <div className="mb-10">
-                <h1 className="text-5xl font-extrabold text-red-900 tracking-tight drop-shadow-sm">
-                  TraviLink
-                </h1>
-                <p className="text-gray-700 mt-3 text-lg italic">
-                  University Vehicle Scheduling & Reservation Portal
-                </p>
-              </div>
-
-              <p className="text-base text-gray-700 leading-relaxed mb-10 max-w-xl border-l-4 border-red-900 pl-4 bg-red-50/30 rounded-md">
-                Schedule and reserve university transportation with ease. Stay
-                informed about vehicle availability, guidelines, and campus
-                transport updates.
-              </p>
-
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-5 mb-8 rounded-md shadow-sm hover:shadow-md transition-all">
-                <h2 className="text-lg font-semibold text-yellow-800 mb-3 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-800" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 2a2 2 0 00-2 2v1h16V4a2 2 0 00-2-2H6zm14 5H4v11a2 2 0 002 2h12a2 2 0 002-2V7z" />
-                  </svg>
-                  Upcoming Reservation Dates
-                </h2>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li><strong>Aug 20–25:</strong> Faculty Conference Shuttle</li>
-                  <li><strong>Sept 1–5:</strong> Student Organization Trip Slots</li>
-                  <li><strong>Sept 12–15:</strong> University Sports Week Transport</li>
-                </ul>
-              </div>
-
-              <div className="mb-10">
-                <h2 className="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-900" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 5h18v14H3z" />
-                  </svg>
-                  Latest Transport Announcements
-                </h2>
-                <div className="grid gap-3 text-sm text-gray-700">
-                  {[
-                    "New electric shuttle buses arriving next month to reduce carbon emissions.",
-                    "Reservation system maintenance: Aug 18, 12:00 AM–4:00 AM.",
-                    "Peak hours reminder: Book rides at least 2 days in advance.",
-                  ].map((news, i) => (
-                    <div key={i} className="p-3 bg-gray-50 rounded-md border hover:bg-gray-100 hover:shadow transition">
-                      {news}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-md border hover:shadow transition">
-                <h2 className="text-lg font-semibold mb-2 text-gray-900 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-900" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 11H5a2 2 0 00-2 2v6h18v-6a2 2 0 00-2-2zM7 9a5 5 0 0110 0v2H7z" />
-                  </svg>
-                  Data Privacy Notice
-                </h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  In compliance with RA 10173, all data is securely stored and
-                  used solely for processing reservations and improving services.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* RIGHT: login card with image background behind it */}
-          <section
-            className="w-full lg:w-[45%] relative flex items-center justify-center overflow-hidden"
-            style={{
-              backgroundImage: "url('/pattern-light.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            {/* dark overlay for readability */}
-            <div className="absolute inset-0 bg-black/65" />
-
-            <form
-              onSubmit={onSubmit}
-              className="relative bg-white shadow-4xl rounded-xl p-10 w-96 border border-gray-200 z-10"
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <img src="/eulogo.png" alt="Enverga University Logo" className="w-20 h-20" />
-                <h3 className="font-extrabold text-red-900 tracking-tight text-3xl leading-none uppercase">
-                  <span className="block">Enverga</span>
-                  <span className="block">University</span>
-                </h3>
-              </div>
-
-              <h2 className="text-xl font-bold border-b pb-3 mb-6 text-gray-800">User Login</h2>
-
-              <div className="mb-5">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-gray-300 focus:ring-2 focus:ring-red-900 focus:border-red-900 p-3 rounded-md outline-none text-sm shadow-sm text-gray-900 placeholder-gray-400"
-                  placeholder="you@mseuf.edu.ph"
-                  required
+      {/* Centered Card + Footer */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-xl">
+          <div className="bg-white/98 supports-[backdrop-filter]:backdrop-blur-md
+                          rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.18)]
+                          ring-1 ring-black/10 border border-white/70">
+            <div className="px-10 pt-8 pb-8">
+              {/* Header (bigger logo + stacked name, subtitle under) */}
+              <div className="flex items-center gap-5">
+                <img
+                  src="/eulogo.png"
+                  alt="Enverga University Logo"
+                  className="w-20 h-20 md:w-24 md:h-24"
                 />
+                <div className="leading-tight">
+                  <h1 className="font-extrabold text-red-900 tracking-tight leading-tight">
+                    <span className="block text-[28px] md:text-[32px]">
+                      Enverga
+                    </span>
+                    <span className="block text-[28px] md:text-[32px]">
+                      University
+                    </span>
+                  </h1>
+                  <p className="text-[13px] md:text-[14px] text-gray-600 mt-1">
+                    TraviLink · Scheduling & Reservations
+                  </p>
+                </div>
               </div>
 
-              {/* ✅ Styled password block inserted */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <div className="h-px bg-gray-200/80 my-6" />
 
-                <div className="relative group">
-                  {/* lock icon (decorative, left side) */}
-                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-900 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm-3 8V6a3 3 0 016 0v3H9z"/>
-                    </svg>
-                  </span>
+              <h2 className="text-[20px] font-bold text-gray-900 mb-4">
+                User Login
+              </h2>
 
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    placeholder="••••••••"
-                    className="
-                      w-full rounded-md border border-gray-300 p-3 pr-3 pl-10
-                      text-sm outline-none shadow-sm text-gray-900
-                      focus:ring-2 focus:ring-red-900 focus:border-red-900
-                      placeholder:text-gray-400/80 placeholder:font-semibold
-                      placeholder:tracking-widest placeholder:[letter-spacing:.35em]
-                      transition-colors
-                    "
-                  />
+              <form onSubmit={onSubmit} className="space-y-5">
+                <div>
+                  <Label>Email</Label>
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      {/* email icon */}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 2v.01L12 11 4 6.01V6h16zM4 18V8.236l8 4.999 8-5V18H4z"/>
+                      </svg>
+                    </span>
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@mseuf.edu.ph"
+                      required
+                      className="pl-11"
+                    />
+                  </div>
                 </div>
 
-                
-              </div>
+                <div>
+                  <Label>Password</Label>
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      {/* lock icon */}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm-3 8V6a3 3 0 016 0v3H9z" />
+                      </svg>
+                    </span>
+                    <Input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      className="pl-11 placeholder:tracking-widest placeholder:[letter-spacing:.35em]"
+                    />
+                  </div>
+                </div>
 
-              {err && <p className="text-sm text-red-600 mb-3">{err}</p>}
+                {err && (
+                  <p role="alert" aria-live="polite" className="text-[13px] text-red-600">
+                    {err}
+                  </p>
+                )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-red-900 text-white w-full py-3 rounded-md hover:bg-red-800 transition-all font-medium text-sm shadow-md disabled:opacity-60"
-              >
-                {loading ? "Signing in..." : "Login"}
-              </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-12 rounded-lg text-[15px] font-semibold text-white
+                             bg-gradient-to-b from-red-900 to-red-800
+                             shadow-sm hover:shadow transition-all
+                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white
+                             active:scale-[0.99] disabled:opacity-60"
+                >
+                  {loading ? "Signing in..." : "Login"}
+                </button>
 
-              <div className="text-xs mt-5 text-center text-gray-600">
-                <a href="#" className="text-red-900 hover:underline font-medium">Reset Password</a>{" "}
-                |{" "}
-                <Link href="/register" className="text-red-900 hover:underline font-medium">
-                  Register Account
-                </Link>
-              </div>
+                <div className="text-[13px] text-center text-gray-700">
+                  <a href="#" className="text-red-900 underline-offset-4 hover:underline font-medium">
+                    Reset Password
+                  </a>{" "}
+                  ·{" "}
+                  <Link href="/register" className="text-red-900 underline-offset-4 hover:underline font-medium">
+                    Register Account
+                  </Link>
+                </div>
 
-              <div className="mt-4 text-[11px] text-center text-gray-600">
-                <Link href="/privacy" className="hover:text-red-900 underline-offset-4 hover:underline">Privacy</Link>
-                {" "}•{" "}
-                <Link href="/terms" className="hover:text-red-900 underline-offset-4 hover:underline">Terms</Link>
-                {" "}•{" "}
-                <Link href="/contact" className="hover:text-red-900 underline-offset-4 hover:underline">Contact</Link>
-              </div>
-            </form>
-          </section>
-        </main>
+                <div className="text-[12px] text-center text-gray-600">
+                  <Link href="/privacy" className="hover:text-red-900 underline-offset-4 hover:underline">
+                    Privacy
+                  </Link>{" "}
+                  •{" "}
+                  <Link href="/terms" className="hover:text-red-900 underline-offset-4 hover:underline">
+                    Terms
+                  </Link>{" "}
+                  •{" "}
+                  <Link href="/contact" className="hover:text-red-900 underline-offset-4 hover:underline">
+                    Contact
+                  </Link>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          {/* Footer right under the card */}
+          <p className="mt-4 text-center text-[12px] text-gray-700">
+            © {new Date().getFullYear()} TraviLink · Enverga University
+          </p>
+        </div>
       </div>
     </div>
   );
