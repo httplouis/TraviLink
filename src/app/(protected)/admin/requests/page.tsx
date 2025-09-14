@@ -1,3 +1,4 @@
+// src/app/(protected)/admin/request/page.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -7,7 +8,12 @@ import ToastProvider, { useToast } from "@/components/common/ToastProvider";
 import RequestsSummaryUI from "@/components/admin/requests/ui/RequestsSummary.ui";
 import FiltersBarContainer from "@/components/admin/requests/containers/FiltersBar.container";
 import BulkBarContainer, { BulkBarHandle } from "@/components/admin/requests/containers/BulkBar.container";
+
+// TABLE + CARD views
 import RequestsTableUI from "@/components/admin/requests/ui/RequestsTable.ui";
+import RequestsCardGridUI from "@/components/admin/requests/ui/RequestsCardGrid.ui";
+import ViewToggleUI from "@/components/admin/requests/ui/ViewToggle.ui";
+
 import RequestDetailsModalUI from "@/components/admin/requests/ui/RequestDetailsModal.ui";
 import ConfirmUI from "@/components/admin/requests/ui/Confirm.ui";
 
@@ -22,56 +28,86 @@ function PageInner() {
   // SOURCE rows (mock)
   const [allRows, setAllRows] = useState<RequestRow[]>(() => [...REQUESTS]);
 
-  // FILTERED rows
+  // FILTERED rows (from FiltersBarContainer)
   const [filteredRows, setFilteredRows] = useState<RequestRow[]>(() => allRows);
   useEffect(() => setFilteredRows(allRows), [allRows]);
 
-  // SELECTION
+  // LOCAL table/card search + sort (applied after Filters)
+  const [tableSearch, setTableSearch] = useState("");
+  const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
+
+  const postFilterRows = useMemo(() => {
+    const q = tableSearch.trim().toLowerCase();
+    const searched = q
+      ? filteredRows.filter((r) => {
+          const s = [r.id, r.purpose, r.dept, r.requester ?? "", r.driver ?? "", r.vehicle ?? ""]
+            .join(" ")
+            .toLowerCase();
+          return s.includes(q);
+        })
+      : filteredRows;
+    // sort by date
+    return [...searched].sort((a, b) =>
+      sortDir === "desc" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date)
+    );
+  }, [filteredRows, tableSearch, sortDir]);
+
+  // VIEW TOGGLE
+  const [view, setView] = useState<"table" | "card">("table");
+
+  // SELECTION (shared across views)
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const clearSelection = () => setSelected(new Set());
 
-  // PAGINATION
+  // PAGINATION (table 15/page; card 9/page)
+  const PAGE_SIZES = { table: 15, card: 9 } as const;
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
-    pageSize: 5,
-    total: allRows.length,
+    pageSize: PAGE_SIZES.table,
+    total: postFilterRows.length,
   });
+
+  // adjust pageSize when view changes
+  useEffect(() => {
+    setPagination((p) => ({
+      ...p,
+      page: 1,
+      pageSize: PAGE_SIZES[view],
+    }));
+    clearSelection();
+  }, [view]);
+
+  // keep pagination in sync with rows
   useEffect(() => {
     setPagination((p) => {
-      const total = filteredRows.length;
+      const total = postFilterRows.length;
       const maxPage = Math.max(1, Math.ceil(total / p.pageSize) || 1);
       return { ...p, total, page: Math.min(p.page, maxPage) };
     });
     clearSelection();
-  }, [filteredRows]);
+  }, [postFilterRows]);
 
   const pageRows = useMemo(() => {
     const start = (pagination.page - 1) * pagination.pageSize;
-    return filteredRows.slice(start, start + pagination.pageSize);
-  }, [filteredRows, pagination.page, pagination.pageSize]);
+    return postFilterRows.slice(start, start + pagination.pageSize);
+  }, [postFilterRows, pagination.page, pagination.pageSize]);
 
   // DETAILS + CONFIRM
   const [openDetails, setOpenDetails] = useState(false);
   const [activeRow, setActiveRow] = useState<RequestRow | undefined>();
-  const openRow = (r: RequestRow) => { setActiveRow(r); setOpenDetails(true); };
+  const openRow = (r: RequestRow) => {
+    setActiveRow(r);
+    setOpenDetails(true);
+  };
 
   const [confirm, setConfirm] = useState<{ open: boolean; kind?: "approve" | "reject"; id?: string }>({ open: false });
 
   // ---------- Optimistic patch ----------
   function patchStatus(ids: string[], status?: "Approved" | "Rejected") {
-    setAllRows((prev) =>
-      status
-        ? prev.map((r) => (ids.includes(r.id) ? { ...r, status } : r))
-        : prev.filter((r) => !ids.includes(r.id))
-    );
-    setFilteredRows((prev) =>
-      status
-        ? prev.map((r) => (ids.includes(r.id) ? { ...r, status } : r))
-        : prev.filter((r) => !ids.includes(r.id))
-    );
+    setAllRows((prev) => (status ? prev.map((r) => (ids.includes(r.id) ? { ...r, status } : r)) : prev.filter((r) => !ids.includes(r.id))));
+    setFilteredRows((prev) => (status ? prev.map((r) => (ids.includes(r.id) ? { ...r, status } : r)) : prev.filter((r) => !ids.includes(r.id))));
   }
 
-  // ---------- Single row actions ----------
   async function approveOne(id: string) {
     const snapAll = [...allRows];
     const snapFiltered = [...filteredRows];
@@ -80,7 +116,8 @@ function PageInner() {
       await approveRequests([id]);
       toast({ kind: "success", message: `Request ${id} approved.` });
     } catch {
-      setAllRows(snapAll); setFilteredRows(snapFiltered);
+      setAllRows(snapAll);
+      setFilteredRows(snapFiltered);
       toast({ kind: "error", message: `Failed to approve ${id}.` });
     }
   }
@@ -93,7 +130,8 @@ function PageInner() {
       await rejectRequests([id]);
       toast({ kind: "success", message: `Request ${id} rejected.` });
     } catch {
-      setAllRows(snapAll); setFilteredRows(snapFiltered);
+      setAllRows(snapAll);
+      setFilteredRows(snapFiltered);
       toast({ kind: "error", message: `Failed to reject ${id}.` });
     }
   }
@@ -103,6 +141,7 @@ function PageInner() {
     if (confirm.kind === "approve") await approveOne(id);
     if (confirm.kind === "reject") await rejectOne(id);
     setConfirm({ open: false });
+    setOpenDetails(false);
   };
 
   // ---------- Bulk actions ----------
@@ -115,7 +154,8 @@ function PageInner() {
       await approveRequests(ids);
       toast({ kind: "success", message: `Approved ${ids.length} selected.` });
     } catch {
-      setAllRows(snapAll); setFilteredRows(snapFiltered);
+      setAllRows(snapAll);
+      setFilteredRows(snapFiltered);
       toast({ kind: "error", message: "Failed to approve selected." });
     }
   }
@@ -129,7 +169,8 @@ function PageInner() {
       await rejectRequests(ids);
       toast({ kind: "success", message: `Rejected ${ids.length} selected.` });
     } catch {
-      setAllRows(snapAll); setFilteredRows(snapFiltered);
+      setAllRows(snapAll);
+      setFilteredRows(snapFiltered);
       toast({ kind: "error", message: "Failed to reject selected." });
     }
   }
@@ -143,7 +184,8 @@ function PageInner() {
       await deleteRequests(ids);
       toast({ kind: "success", message: `Deleted ${ids.length} selected.` });
     } catch {
-      setAllRows(snapAll); setFilteredRows(snapFiltered);
+      setAllRows(snapAll);
+      setFilteredRows(snapFiltered);
       toast({ kind: "error", message: "Failed to delete selected." });
     }
   }
@@ -157,77 +199,160 @@ function PageInner() {
     }
   }
 
-  // ---------- Shortcuts ----------
+  // ---------- Keyboard shortcuts ----------
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      // Approve selected (Ctrl/Cmd+Enter)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "enter") {
         e.preventDefault();
         bulkRef.current?.approveSelected();
+        return;
       }
-      if (e.key === "a") { e.preventDefault(); setSelected(new Set([...selected, ...pageRows.map(r => r.id)])); }
-      if (e.key === "x") { e.preventDefault(); clearSelection(); }
-      if (e.key === "ArrowLeft")  setPagination(p => ({ ...p, page: Math.max(1, p.page - 1) }));
-      if (e.key === "ArrowRight") setPagination(p => ({ ...p, page: p.page + 1 }));
+      // Select all on page
+      if (!e.ctrlKey && !e.metaKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        setSelected((prev) => new Set([...prev, ...pageRows.map((r) => r.id)]));
+        return;
+      }
+      // Clear selection
+      if (e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        clearSelection();
+        return;
+      }
+      // Pagination
+      if (e.key === "ArrowLeft") {
+        setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }));
+        return;
+      }
+      if (e.key === "ArrowRight") {
+        setPagination((p) => ({
+          ...p,
+          page: Math.min(Math.ceil(p.total / p.pageSize) || 1, p.page + 1),
+        }));
+        return;
+      }
+      // View toggle: T (table), C (card)
+      if (e.key.toLowerCase() === "t") {
+        setView("table");
+        return;
+      }
+      if (e.key.toLowerCase() === "c") {
+        setView("card");
+        return;
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [pageRows, selected]);
+  }, [pageRows]);
 
-  // KPI
-  const summary = useMemo(() => ({
-    pending:   filteredRows.filter((r) => r.status === "Pending").length,
-    approved:  filteredRows.filter((r) => r.status === "Approved").length,
-    completed: filteredRows.filter((r) => r.status === "Completed").length,
-    rejected:  filteredRows.filter((r) => r.status === "Rejected").length,
-  }), [filteredRows]);
+  // KPI cards reflect rows after Filters (not tableSearch)
+  const summary = useMemo(
+    () => ({
+      pending: filteredRows.filter((r) => r.status === "Pending").length,
+      approved: filteredRows.filter((r) => r.status === "Approved").length,
+      completed: filteredRows.filter((r) => r.status === "Completed").length,
+      rejected: filteredRows.filter((r) => r.status === "Rejected").length,
+    }),
+    [filteredRows]
+  );
 
   return (
     <div className="space-y-4">
       <RequestsSummaryUI summary={summary} />
-      <FiltersBarContainer rows={allRows} onFiltered={setFilteredRows} />
 
-      <BulkBarContainer
-        ref={bulkRef}
-        allRows={filteredRows}
-        selectedIds={selected}
-        clearSelection={clearSelection}
-        onApproveSelected={bulkApprove}
-        onRejectSelected={bulkReject}
-        onDeleteSelected={bulkDelete}
-        onExportSelected={bulkExport}
-      />
+      {/* View toggle (upper-right, outside of table/card) */}
+      <ViewToggleUI view={view} onChange={setView} className="justify-end" />
 
-      <RequestsTableUI
-        rows={pageRows}
-        pagination={pagination}
-        selectedIds={selected}
-        onToggleOne={(id) =>
-          setSelected((prev) => {
-            const next = new Set(prev);
-            next.has(id) ? next.delete(id) : next.add(id);
-            return next;
-          })
-        }
-        onToggleAllOnPage={(checked, idsOnPage) =>
-          setSelected((prev) => {
-            const next = new Set(prev);
-            idsOnPage.forEach((id) => (checked ? next.add(id) : next.delete(id)));
-            return next;
-          })
-        }
-        onRowClick={openRow}
-        onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
-        onPageSizeChange={(pageSize) => setPagination((p) => ({ ...p, page: 1, pageSize }))}
-        onApproveRow={(id) => approveOne(id)}
-        onRejectRow={(id) => rejectOne(id)}
-      />
+      {/* Headless Filters container provides filtering logic to both views */}
+      <FiltersBarContainer rows={allRows} onFiltered={setFilteredRows}>
+        {(controls) => (
+          <>
+            {/* Bulk bar appears only when selection > 0 (works for both views) */}
+            {selected.size > 0 && (
+              <BulkBarContainer
+                ref={bulkRef}
+                allRows={postFilterRows}
+                selectedIds={selected}
+                clearSelection={clearSelection}
+                onApproveSelected={bulkApprove}
+                onRejectSelected={bulkReject}
+                onDeleteSelected={bulkDelete}
+                onExportSelected={bulkExport}
+              />
+            )}
+
+            {/* TABLE VIEW */}
+            {view === "table" && (
+              <RequestsTableUI
+                tableSearch={tableSearch}
+                onTableSearch={setTableSearch}
+                sortDir={sortDir}
+                onSortDirChange={setSortDir}
+                onAddNew={() => toast({ kind: "success", message: "Add New clicked" })}
+                filterControls={{
+                  draft: controls.draft,
+                  onDraftChange: controls.onDraftChange,
+                  onApply: controls.onApply,
+                  onClearAll: controls.onClearAll,
+                }}
+                rows={pageRows}
+                pagination={pagination}
+                selectedIds={selected}
+                onToggleOne={(id) =>
+                  setSelected((prev) => {
+                    const next = new Set(prev);
+                    next.has(id) ? next.delete(id) : next.add(id);
+                    return next;
+                  })
+                }
+                onToggleAllOnPage={(checked, idsOnPage) =>
+                  setSelected((prev) => {
+                    const next = new Set(prev);
+                    idsOnPage.forEach((id) => (checked ? next.add(id) : next.delete(id)));
+                    return next;
+                  })
+                }
+                onRowClick={openRow}
+                onRowViewDetails={(row) => openRow(row)}
+                onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
+                onPageSizeChange={(pageSize) => setPagination((p) => ({ ...p, page: 1, pageSize }))}
+                onApproveRow={(id) => approveOne(id)}
+                onRejectRow={(id) => rejectOne(id)}
+              />
+            )}
+
+            {/* CARD VIEW */}
+            {view === "card" && (
+              <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+                <RequestsCardGridUI
+                  rows={pageRows}
+                  pagination={pagination}
+                  onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
+                  selectedIds={selected}
+                  onToggleOne={(id) =>
+                    setSelected((prev) => {
+                      const next = new Set(prev);
+                      next.has(id) ? next.delete(id) : next.add(id);
+                      return next;
+                    })
+                  }
+                  onRowClick={openRow}
+                  onApproveRow={(id) => approveOne(id)}
+                  onRejectRow={(id) => rejectOne(id)}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </FiltersBarContainer>
 
       <RequestDetailsModalUI
         open={openDetails}
         onClose={() => setOpenDetails(false)}
         row={activeRow}
         onApprove={() => activeRow && setConfirm({ open: true, kind: "approve", id: activeRow.id })}
-        onReject={()  => activeRow && setConfirm({ open: true, kind: "reject",  id: activeRow.id })}
+        onReject={() => activeRow && setConfirm({ open: true, kind: "reject", id: activeRow.id })}
       />
 
       <ConfirmUI

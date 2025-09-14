@@ -15,6 +15,7 @@ export const REQUESTS: RequestRow[] = [
     requester: "Prof. Santos",
     vehicle: "Van 12",
     driver: "Dela Cruz",
+    receivedAt: "2025-09-04 10:15 AM",
   },
   {
     id: "RQ-1019",
@@ -25,6 +26,7 @@ export const REQUESTS: RequestRow[] = [
     requester: "HR Office",
     vehicle: "Bus 07",
     driver: "S. Reyes",
+    receivedAt: "2025-09-05 3:40 PM",
   },
   {
     id: "RQ-1017",
@@ -35,6 +37,7 @@ export const REQUESTS: RequestRow[] = [
     requester: "Registrar",
     vehicle: "Car 05",
     driver: "A. Cruz",
+    receivedAt: "2025-09-03 8:50 AM",
   },
   {
     id: "RQ-1016",
@@ -45,6 +48,7 @@ export const REQUESTS: RequestRow[] = [
     requester: "Cashier",
     vehicle: "Van 03",
     driver: "B. Santos",
+    receivedAt: "2025-09-04 11:20 AM",
   },
   {
     id: "RQ-1015",
@@ -55,6 +59,7 @@ export const REQUESTS: RequestRow[] = [
     requester: "Dept Chair",
     vehicle: "Van 15",
     driver: "K. Dizon",
+    receivedAt: "2025-09-02 9:10 AM",
   },
   {
     id: "RQ-1014",
@@ -65,6 +70,7 @@ export const REQUESTS: RequestRow[] = [
     requester: "Treasury",
     vehicle: "Car 02",
     driver: "M. Cruz",
+    receivedAt: "2025-09-01 1:45 PM",
   },
 ];
 
@@ -97,6 +103,10 @@ export const DASHBOARD_DATA: DashboardData = {
     { label: "Rejected", value: REQUESTS.filter(r => r.status === "Rejected").length },
   ],
   requestsByDay: [
+    { date: "2025-09-01", count: 1 },
+    { date: "2025-09-02", count: 1 },
+    { date: "2025-09-03", count: 1 },
+    { date: "2025-09-04", count: 2 },
     { date: "2025-09-05", count: 2 },
     { date: "2025-09-06", count: 1 },
     { date: "2025-09-08", count: 1 },

@@ -14,22 +14,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div
       data-role="admin"
-      className="h-dvh w-full bg-neutral-50 text-neutral-900" // fixed to viewport height; page itself won't scroll
+      className="flex h-dvh w-full flex-col bg-neutral-50 text-neutral-900"
+      style={{ ["--topbar-h" as any]: "56px" }}
     >
-      {/* Sticky top bar (56px assumed) */}
-      <div className="tl-topbar">
+      {/* Sticky top bar */}
+      <div className="tl-topbar sticky top-0 z-40 h-[var(--topbar-h)] bg-white/95 shadow-sm backdrop-blur">
         <Topbar />
       </div>
 
       {/* 2-column shell: LeftNav • Main */}
-      <div className="tl-shell">
-        {/* Left nav */}
-        <aside className="tl-leftnav overflow-y-auto">
+      <div className="tl-shell flex flex-1 overflow-hidden">
+        {/* LeftNav rail – its width is controlled inside AdminLeftNav */}
+        <aside className="tl-leftnav shrink-0 overflow-y-auto bg-transparent">
           <AdminLeftNav />
         </aside>
 
-        {/* Main (ONLY scroller) */}
-        <main className="tl-main overflow-y-auto min-w-0">
+        {/* Main – the only scroller */}
+        <main className="tl-main min-w-0 flex-1 overflow-y-auto">
           <div className="mx-auto max-w-7xl px-6 py-5">
             <Breadcrumbs className="mb-4" />
             {children}

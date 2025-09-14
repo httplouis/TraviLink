@@ -1,5 +1,7 @@
 "use client";
+
 import * as React from "react";
+import { CheckCircle2, XCircle, Trash2, FileDown, HelpCircle } from "lucide-react";
 
 type BusyKind = "approve" | "reject" | "delete" | null;
 
@@ -26,73 +28,88 @@ export default function BulkBarUI({
 }: Props) {
   const disabled = selectedCount === 0 || busy !== null;
 
-  return (
-    <div className="sticky top-[calc(var(--sticky-offset,56px)+4px)] z-20 flex items-center gap-3 rounded-md border bg-white px-3 py-2 shadow">
-      <div className="text-sm font-medium">
-        {selectedCount > 0
-          ? `${selectedCount} selected` +
-            Object.entries(breakdown)
-              .map(([status, n]) => ` · ${n} ${status}`)
-              .join("")
-          : "No selection"}
-      </div>
+  const summary =
+    selectedCount > 0
+      ? `${selectedCount} selected` +
+        Object.entries(breakdown)
+          .map(([status, n]) => ` · ${n} ${status}`)
+          .join("")
+      : "No selection";
 
-      <div className="ml-auto flex flex-wrap gap-2">
-        <Button
+  return (
+    <div className="sticky top-[calc(var(--sticky-offset,56px)+4px)] z-20 flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2 shadow-sm">
+      <div className="text-sm font-medium text-neutral-700">{summary}</div>
+
+      <div className="ml-auto flex flex-wrap items-center gap-2">
+        <ActionButton
+          label="Approve"
+          icon={<CheckCircle2 className="h-4 w-4" />}
           onClick={onApprove}
           disabled={disabled}
           busy={busy === "approve"}
-          kind="primary"
+          variant="success"
           title="Approve selected (Ctrl+Enter)"
-        >
-          Approve
-        </Button>
-
-        <Button
+        />
+        <ActionButton
+          label="Reject"
+          icon={<XCircle className="h-4 w-4" />}
           onClick={onReject}
           disabled={disabled}
           busy={busy === "reject"}
-          kind="danger"
-          title="Reject selected (asks to confirm)"
-        >
-          Reject
-        </Button>
-
-        <Button
+          variant="danger"
+          title="Reject selected"
+        />
+        <ActionButton
+          label="Delete"
+          icon={<Trash2 className="h-4 w-4" />}
           onClick={onDelete}
           disabled={disabled}
           busy={busy === "delete"}
-          title="Delete selected (asks to confirm)"
-        >
-          Delete
-        </Button>
-
-        <button
-          disabled={selectedCount === 0 || busy !== null}
+          variant="neutral"
+          title="Delete selected"
+        />
+        <GhostButton
+          label="Export"
+          icon={<FileDown className="h-4 w-4" />}
           onClick={onExport}
-          className="rounded border px-2 py-1 text-xs disabled:opacity-50"
+          disabled={disabled}
           title="Export selected to CSV"
-        >
-          Export
-        </button>
+        />
+        <GhostButton label="Clear" onClick={onClear} disabled={disabled} title="Clear selection" />
 
-        <button
-          disabled={selectedCount === 0 || busy !== null}
-          onClick={onClear}
-          className="rounded border px-2 py-1 text-xs disabled:opacity-50"
-          title="Clear selection"
-        >
-          Clear
-        </button>
-
-        {/* Hotkeys tooltip */}
-        <div className="relative group ml-3">
-          <span className="cursor-help text-xs text-neutral-500">?</span>
-          <div className="absolute right-0 top-full mt-1 hidden w-52 rounded bg-black p-2 text-xs text-white group-hover:block">
-            <p><kbd>A</kbd> select all on page</p>
-            <p><kbd>X</kbd> clear selection</p>
-            <p><kbd>← / →</kbd> prev / next page</p>
-            <p><kbd>Ctrl+Enter</kbd> approve bulk</p>
+        {/* Hotkeys helper */}
+        <div className="relative group ml-2">
+          <button
+            type="button"
+            className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-600 shadow-sm hover:bg-neutral-50"
+            title="Keyboard shortcuts"
+          >
+            <HelpCircle className="h-4 w-4" />
+            Shortcuts
+          </button>
+          <div className="pointer-events-none absolute right-0 top-full z-10 mt-2 hidden w-64 rounded-lg border border-neutral-200 bg-white p-3 text-xs text-neutral-700 shadow-lg group-hover:block">
+            <p className="mb-1 flex items-center justify-between">
+              <span>Select all on page</span>
+              <kbd className="kbd">A</kbd>
+            </p>
+            <p className="mb-1 flex items-center justify-between">
+              <span>Clear selection</span>
+              <kbd className="kbd">X</kbd>
+            </p>
+            <p className="mb-1 flex items-center justify-between">
+              <span>Prev / Next page</span>
+              <span className="flex items-center gap-1">
+                <kbd className="kbd">←</kbd>
+                <kbd className="kbd">→</kbd>
+              </span>
+            </p>
+            <p className="flex items-center justify-between">
+              <span>Approve selected</span>
+              <span className="flex items-center gap-1">
+                <kbd className="kbd">Ctrl</kbd>
+                <kbd className="kbd">Enter</kbd>
+              </span>
+            </p>
           </div>
         </div>
       </div>
@@ -100,63 +117,80 @@ export default function BulkBarUI({
   );
 }
 
-function Button({
-  children,
+/* ---------- Buttons ---------- */
+
+function ActionButton({
+  label,
+  icon,
   onClick,
   disabled,
   busy,
-  kind,
+  variant = "neutral",
   title,
 }: {
-  children: React.ReactNode;
+  label: string;
+  icon: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   busy?: boolean;
-  kind?: "primary" | "danger";
+  variant?: "success" | "danger" | "neutral";
   title?: string;
 }) {
   const base =
-    "inline-flex items-center gap-1 rounded px-2 py-1 text-xs disabled:opacity-50";
-  const style =
-    kind === "primary"
-      ? "bg-green-600 text-white"
-      : kind === "danger"
-      ? "bg-red-600 text-white"
-      : "border";
+    "inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium shadow-sm disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1";
+  const look =
+    variant === "success"
+      ? "bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-300"
+      : variant === "danger"
+      ? "bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-300"
+      : "border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 focus:ring-neutral-300";
+
+  return (
+    <button className={`${base} ${look}`} onClick={onClick} disabled={disabled || busy} title={title}>
+      {busy ? <Spinner /> : icon}
+      {label}
+    </button>
+  );
+}
+
+function GhostButton({
+  label,
+  icon,
+  onClick,
+  disabled,
+  title,
+}: {
+  label: string;
+  icon?: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  title?: string;
+}) {
   return (
     <button
-      disabled={disabled || busy}
+      className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm hover:bg-neutral-50 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:ring-offset-1"
       onClick={onClick}
-      className={`${base} ${style}`}
+      disabled={disabled}
       title={title}
     >
-      {busy && <Spinner />}
-      {children}
+      {icon}
+      {label}
     </button>
   );
 }
 
 function Spinner() {
   return (
-    <svg
-      className="h-3 w-3 animate-spin"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-        fill="none"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v4A4 4 0 004 12z"
-      />
+    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" className="opacity-25" />
+      <path d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4z" fill="currentColor" className="opacity-75" />
     </svg>
   );
+}
+
+/* Tailwind “kbd” utility (no styled-jsx) */
+declare module "react" {
+  interface HTMLAttributes<T> {
+    // allow className "kbd" without TS complaining
+  }
 }

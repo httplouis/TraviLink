@@ -1,15 +1,13 @@
-/* Admin-only theme; does NOT touch other pages */
+/* Admin-only theme */
 @import "tailwindcss";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ===== Brand & Root ===== */
+/* ===== Root ===== */
 [data-role="admin"] {
   --admin-brand: #7a0019;
   --admin-line: #e5e7eb;
-  overflow: hidden;              /* ❌ hide page scrollbars */
-  height: 100dvh;                /* lock to viewport height */
 }
 
 /* ===== Topbar ===== */
@@ -20,34 +18,36 @@
   box-shadow: inset 0 -1px 0 rgba(255,255,255,.12);
 }
 
-/* ===== Shell (2 columns: LeftNav • Main) ===== */
+/* ===== Shell (flex; main re-centers automatically) ===== */
 [data-role="admin"] .tl-shell {
-  display: grid;
-  grid-template-columns: 264px 1fr;   /* no right rail */
-  height: calc(100dvh - 56px);        /* fill under topbar */
-  overflow: hidden;                   /* prevent root scrolling */
+  display: flex;
+  height: calc(100dvh - 56px);
+  overflow: hidden;             /* only main scrolls */
 }
 
-/* Left nav */
+/* Left nav area (visual border only; width is set by component) */
 [data-role="admin"] .tl-leftnav {
   background: #fff;
   border-right: 1px solid var(--admin-line);
-  width: 264px;
   min-width: 0;
-  overflow-y: auto;                   /* nav can scroll if taller than screen */
+  overflow-y: auto;
 }
 
 /* Main: the ONLY scroller */
 [data-role="admin"] .tl-main {
   min-width: 0;
   background: #f6f6f6;
-  overflow-y: auto;                   /* vertical scroll here only */
+  overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 
-/* ===== Left nav items ===== */
+/* ===== Optional helpers ===== */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* ===== Nav items (legacy helpers if you re-use) ===== */
 [data-role="admin"] .nav-item {
   display: flex; align-items: center; gap: .6rem;
   padding: .5rem .75rem; border-radius: .5rem;
@@ -57,42 +57,24 @@
   background: var(--admin-brand); color: #fff;
 }
 
-/* ===== Cards ===== */
+/* ===== KPI tiles / Cards (optional) ===== */
+[data-role="admin"] .kpi-tile {
+  border: 1px solid var(--admin-line);
+  border-radius: .75rem;
+  background: #fff;
+}
 [data-role="admin"] .tl-card {
   border: 1px solid var(--admin-line);
   border-radius: .75rem;
   background: #fff;
   box-shadow: 0 6px 18px rgba(17,24,39,.06);
 }
-[data-role="admin"] .tl-card-header {
-  padding: .5rem .75rem;
-  border-bottom: 1px solid var(--admin-line);
-  background: rgba(255,255,255,.75);
-  backdrop-filter: saturate(120%) blur(6px);
-  border-top-left-radius: .75rem;
-  border-top-right-radius: .75rem;
-}
-[data-role="admin"] .tl-card-body { padding: .75rem; }
-
-/* ===== KPI tiles ===== */
-[data-role="admin"] .kpi-tile {
-  border: 1px solid var(--admin-line);
-  border-radius: .75rem;
-  background: #fff;
-}
-[data-role="admin"] .kpi-tile .title { color: #6b7280; }
 
 /* ===== Print tweaks ===== */
 @media print {
-  [data-role="admin"] { background: #fff !important; }
-  * { box-shadow: none !important; }
-  .print\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-}
-
-@media print {
   [data-role="admin"] .tl-leftnav,
   [data-role="admin"] .tl-topbar { display: none !important; }
-  [data-role="admin"] .tl-shell { grid-template-columns: 1fr !important; height: auto !important; }
+  [data-role="admin"] .tl-shell { height: auto !important; }
   [data-role="admin"] .tl-main { overflow: visible !important; background: #fff !important; }
   table { page-break-inside: auto; }
   tr, td, th { page-break-inside: avoid; page-break-after: auto; }
