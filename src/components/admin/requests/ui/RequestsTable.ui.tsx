@@ -1,3 +1,4 @@
+// src/components/admin/requests/ui/RequestsTable.ui.tsx
 "use client";
 
 import * as React from "react";
@@ -5,7 +6,6 @@ import type { RequestRow, Pagination, FilterState } from "@/lib/admin/types";
 import StatusBadge from "./StatusBadge";
 import PaginationUI from "./Pagination";
 import RequestsToolbar from "@/components/admin/requests/toolbar/RequestsToolbar.ui";
-
 
 type Props = {
   rows: RequestRow[];
@@ -68,37 +68,36 @@ export default function RequestsTable({
 
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
-      <RequestsToolbar
-        tableSearch={tableSearch}
-        onTableSearch={onTableSearch}
-        sortDir={sortDir}
-        onSortDirChange={onSortDirChange}
-        onAddNew={onAddNew ?? (() => {})}
-        filterControls={filterControls}
-      />
+      {/* sticky toolbar under KPI (no inline top) */}
+      <div className="admin-sticky-toolbar px-3 py-2">
+        <RequestsToolbar
+          q={tableSearch}
+          onQChange={onTableSearch ?? (() => {})}
+          sort={sortDir === "desc" ? "newest" : "oldest"}
+          onSortChange={(s) => onSortDirChange?.(s === "newest" ? "desc" : "asc")}
+          onAddNew={onAddNew ?? (() => {})}
+          draft={filterControls.draft}
+          onDraftChange={filterControls.onDraftChange}
+          onApply={filterControls.onApply}
+          onClearAll={filterControls.onClearAll}
+        />
+      </div>
 
       <div className="overflow-x-auto">
-  <table className="w-full text-sm table-fixed">
-    {/* ✅ ADD THIS, replace any old <colgroup> */}
-    <colgroup>
-      {[
-        44,      // checkbox
-        110,     // ID
-        140,     // Department
-        null,    // Purpose (flex)
-        170,     // Received
-        120,     // Date
-        120,     // Status
-        150,     // Actions
-      ].map((w, i) => (
-        <col key={i} style={w ? { width: w } : undefined} />
-      ))}
-    </colgroup>
+        <table className="w-full table-fixed text-sm">
+          {/* fixed widths to prevent column shift */}
+          <colgroup>
+            {[44, 110, 140, null, 170, 120, 120, 150].map((w, i) => (
+              <col key={i} style={w ? { width: w } : undefined} />
+            ))}
+          </colgroup>
 
-        <thead className="sticky top-0 z-10 bg-neutral-50/90 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/60">
+          {/* thead stays simple; sticky is applied per <th> */}
+          <thead>
             <tr className="text-neutral-600">
               <Th>
                 <input
+                  aria-label="Select all on page"
                   type="checkbox"
                   checked={allChecked}
                   ref={(el) => {
@@ -144,12 +143,10 @@ export default function RequestsTable({
 
                 <Td>{r.dept}</Td>
 
-                {/* Purpose locks to the column width and truncates */}
                 <Td className="truncate" title={r.purpose}>
                   {r.purpose}
                 </Td>
 
-                {/* Keep numbers/dates single-line so the column width is stable */}
                 <Td className="tabular-nums whitespace-nowrap">
                   {(r as any).receivedAt ?? (r as any).createdAt ?? "—"}
                 </Td>
@@ -181,6 +178,7 @@ export default function RequestsTable({
                 </Td>
               </tr>
             ))}
+
             {rows.length === 0 && (
               <tr>
                 <Td className="py-12 text-center text-neutral-500" colSpan={8}>
@@ -194,8 +192,8 @@ export default function RequestsTable({
 
       <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2">
         <div className="text-xs text-neutral-500">
-          Page {pagination.page} of {Math.max(1, Math.ceil(pagination.total / pagination.pageSize))}
-          {" · "}Showing {Math.min(pagination.pageSize, rows.length)} of {pagination.total}
+          Page {pagination.page} of {Math.max(1, Math.ceil(pagination.total / pagination.pageSize))} · Showing{" "}
+          {Math.min(pagination.pageSize, rows.length)} of {pagination.total}
         </div>
         <PaginationUI
           page={pagination.page}
@@ -209,10 +207,35 @@ export default function RequestsTable({
   );
 }
 
-/* tiny cells */
-function Th({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <th className={`px-4 py-3 text-left text-xs font-semibold ${className}`}>{children}</th>;
+/* Header cell with sticky applied (works across browsers) */
+function Th({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <th
+      className={[
+        // sticky per cell instead of thead
+        "sticky",
+        "top-[calc(var(--admin-kpi-h)+var(--admin-toolbar-h))]",
+        "z-20",
+        // visual/background for overlap
+        "bg-neutral-50/90",
+        "backdrop-blur",
+        "supports-[backdrop-filter]:bg-neutral-50/60",
+        // spacing + typography
+        "px-4 py-3 text-left text-xs font-semibold",
+        className,
+      ].join(" ")}
+    >
+      {children}
+    </th>
+  );
 }
+
 function Td({
   children,
   className = "",

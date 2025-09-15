@@ -89,3 +89,38 @@
   table { page-break-inside: auto; }
   tr, td, th { page-break-inside: avoid; page-break-after: auto; }
 }
+
+/* --- Sticky stack for Requests page --- */
+[data-role="admin"] {
+  /* tweak these if you change heights */
+  --admin-kpi-h: 104px;        /* KPI + view toggle block height */
+  --admin-toolbar-h: 56px;     /* RequestsToolbar visual height */
+}
+
+/* KPI + view toggle stays under the topbar while scrolling */
+[data-role="admin"] .admin-sticky-kpi {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #f6f6f6;
+  /* subtle glass look so it blends over content */
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* Toolbar (search/filter/sort) stays below the KPI stack */
+[data-role="admin"] .admin-sticky-toolbar {
+  position: sticky;
+  top: var(--admin-kpi-h);
+  z-index: 25;
+  background: #fff;
+  border-bottom: 1px solid var(--admin-line);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* Table header sticks BELOW toolbar (so they don't overlap) */
+[data-role="admin"] .admin-thead-sticky {
+  top: calc(var(--admin-kpi-h) + var(--admin-toolbar-h));
+  z-index: 20;
+}
