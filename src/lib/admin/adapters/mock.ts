@@ -1,68 +1,187 @@
-import type { DashboardData } from "../types";
-import type { RequestRow, RequestsSummary } from "@/components/admin/requests/types";
+import type {
+  DashboardData,
+  RequestRow,
+  TripLogRow,
+  StatusPoint,
+  KPI,
+  UtilizationPoint,
+  DeptUsage,
+} from "../types";
+import type { ListRequestsQuery } from "../repo";
+
+/* ---------------- Mock dataset ---------------- */
+
+let REQUESTS: RequestRow[] = [
+  {
+    id: "REQ-1001",
+    dept: "CCMS",
+    purpose: "Seminar",
+    date: "2025-09-10",
+    status: "Pending",
+    requester: "Prof. Santos",
+    createdAt: "2025-09-05T08:30:00Z",
+    updatedAt: "2025-09-05T08:30:00Z",
+  },
+  {
+    id: "REQ-1002",
+    dept: "HR",
+    purpose: "Orientation",
+    date: "2025-09-12",
+    status: "Approved",
+    requester: "HR Office",
+    createdAt: "2025-09-06T09:00:00Z",
+    updatedAt: "2025-09-07T12:10:00Z",
+  },
+  {
+    id: "REQ-1003",
+    dept: "Finance",
+    purpose: "Field Audit",
+    date: "2025-09-14",
+    status: "Rejected",
+    requester: "Finance Team",
+    createdAt: "2025-09-07T07:45:00Z",
+    updatedAt: "2025-09-08T10:22:00Z",
+  },
+];
+
+const RECENT_TRIPS: TripLogRow[] = [
+  {
+    id: "TRP-2001",
+    vehicle: "VAN-12",
+    driver: "Dizon",
+    department: "CCMS",
+    date: "2025-09-09",
+    distanceKm: 12.6,
+  },
+  {
+    id: "TRP-2002",
+    vehicle: "VAN-03",
+    driver: "Reyes",
+    department: "HR",
+    date: "2025-09-10",
+    distanceKm: 7.8,
+  },
+];
+
+/* ---------------- Helpers ---------------- */
+
+function contains(hay: string, needle: string) {
+  return hay.toLowerCase().includes(needle.toLowerCase());
+}
+
+function inDateRange(d: string, from?: string, to?: string) {
+  const t = new Date(d).getTime();
+  if (from && t < new Date(from).setHours(0, 0, 0, 0)) return false;
+  if (to && t > new Date(to).setHours(23, 59, 59, 999)) return false;
+  return true;
+}
+
+/* --------------- Dashboard --------------- */
 
 export async function getDashboardData(): Promise<DashboardData> {
+  const kpis: KPI[] = [
+    { label: "Total Trips (Month)", value: 42 },
+    { label: "Active Vehicles", value: 12 },
+    { label: "Pending Requests", value: 5 },
+    { label: "KM This Month", value: 1873 },
+  ];
+
+  const requestsByDay = [
+    { date: "2025-09-08", count: 6 },
+    { date: "2025-09-09", count: 8 },
+    { date: "2025-09-10", count: 5 },
+    { date: "2025-09-11", count: 10 },
+    { date: "2025-09-12", count: 7 },
+  ];
+
+  const statusBreakdown: StatusPoint[] = [
+    { status: "Pending", count: REQUESTS.filter(r => r.status === "Pending").length },
+    { status: "Approved", count: REQUESTS.filter(r => r.status === "Approved").length },
+    { status: "Completed", count: REQUESTS.filter(r => r.status === "Completed").length },
+    { status: "Rejected", count: REQUESTS.filter(r => r.status === "Rejected").length },
+  ];
+
+  const utilization: UtilizationPoint[] = [
+    { label: "VAN-12", percent: 76 },
+    { label: "VAN-03", percent: 58 },
+    { label: "BUS-01", percent: 42 },
+  ];
+
+  const deptUsage: DeptUsage[] = [
+    { dept: "CCMS", count: 11 },
+    { dept: "HR", count: 7 },
+    { dept: "Registrar", count: 4 },
+    { dept: "Finance", count: 5 },
+  ];
+
+  const recentRequests = REQUESTS.slice(0, 5);
+  const recentTrips = RECENT_TRIPS;
+
   return {
-    kpis: [
-      { label: "Vehicles", value: 32 },
-      { label: "Open Requests", value: 14, caption: "↓ 3 vs last week" },
-      { label: "Trips Today", value: 9 },
-      { label: "Maintenance", value: "2 due" },
-    ],
-    requestsByDay: [
-      { date: "Aug 30", count: 11 }, { date: "Aug 31", count: 5 },
-      { date: "Sep 1", count: 7 },   { date: "Sep 2", count: 8 },
-      { date: "Sep 3", count: 12 },  { date: "Sep 4", count: 10 },
-      { date: "Sep 5", count: 9 },   { date: "Sep 6", count: 13 },
-    ],
-    statusBreakdown: [
-      { status: "Pending", count: 6 },
-      { status: "Approved", count: 12 },
-      { status: "Completed", count: 9 },
-      { status: "Rejected", count: 2 },
-    ],
-    utilization: [
-      { label: "Bus-03", percent: 76 },
-      { label: "Van-12", percent: 64 },
-      { label: "SUV-04", percent: 42 },
-      { label: "Van-08", percent: 38 },
-      { label: "Bus-01", percent: 31 },
-    ],
-    deptUsage: [
-      { dept: "CCMS", count: 12 },
-      { dept: "HR", count: 8 },
-      { dept: "Registrar", count: 5 },
-      { dept: "Finance", count: 3 },
-    ],
-    recentRequests: [
-      { id: "RQ-1021", requester: "J. Santos", vehicle: "Van-12", date: "2025-09-05", status: "Pending" },
-      { id: "RQ-1019", requester: "M. Reyes", vehicle: "Bus-03", date: "2025-09-05", status: "Approved" },
-    ],
-    recentTrips: [
-      { id: "TR-2101", vehicle: "Bus-03", driver: "R. Dizon", department: "CCMS", date: "2025-09-06", distanceKm: 18.2 },
-      { id: "TR-2098", vehicle: "Van-12", driver: "J. Ramos", department: "HR", date: "2025-09-06", distanceKm: 7.5 },
-      { id: "TR-2093", vehicle: "SUV-04", driver: "M. Cruz", department: "Registrar", date: "2025-09-05", distanceKm: 12.1 },
-    ],
+    kpis,
+    requestsByDay,
+    statusBreakdown,
+    utilization,
+    deptUsage,
+    recentRequests,
+    recentTrips,
+    receivedAt: new Date().toISOString(),
   };
 }
 
+/* ---------------- Requests ---------------- */
 
-export async function getRequestsData(): Promise<{ summary: RequestsSummary; requests: RequestRow[] }> {
-  const requests: RequestRow[] = [
-    { id: "RQ-1021", dept: "CCMS",      purpose: "Seminar",            date: "2025-09-10", status: "Pending"   },
-    { id: "RQ-1019", dept: "HR",        purpose: "Orientation",        date: "2025-09-12", status: "Approved"  },
-    { id: "RQ-1017", dept: "Registrar", purpose: "Enrollment Support", date: "2025-09-08", status: "Completed" },
-    { id: "RQ-1016", dept: "Finance",   purpose: "Audit Trip",         date: "2025-09-09", status: "Rejected"  },
-    { id: "RQ-1015", dept: "CCMS",      purpose: "Training",           date: "2025-09-06", status: "Approved"  },
-    { id: "RQ-1014", dept: "HR",        purpose: "Hiring Event",       date: "2025-09-05", status: "Pending"   },
-  ];
+export async function listRequests(
+  query: ListRequestsQuery
+): Promise<{ rows: RequestRow[]; total: number }> {
+  const { status, dept, search, from, to, page = 1, pageSize = 10 } = query ?? {};
 
-  const summary: RequestsSummary = {
-    pending:   requests.filter(r => r.status === "Pending").length,
-    approved:  requests.filter(r => r.status === "Approved").length,
-    completed: requests.filter(r => r.status === "Completed").length,
-    rejected:  requests.filter(r => r.status === "Rejected").length,
-  };
+  let rows = REQUESTS.slice();
 
-  return { summary, requests };
+  if (status && status !== "All") rows = rows.filter((r) => r.status === status);
+  if (dept && dept !== "All") rows = rows.filter((r) => r.dept === dept);
+  if (from || to) rows = rows.filter((r) => inDateRange(r.date, from, to));
+  if (search && search.trim()) {
+    rows = rows.filter(
+      (r) =>
+        contains(r.id, search) ||
+        contains(r.purpose, search) ||
+        contains(r.dept, search) ||
+        contains(r.requester ?? "", search)
+    );
+  }
+
+  // newest first by scheduled 'date', fallback to createdAt
+  rows.sort((a, b) => {
+    const A = new Date(a.date ?? a.createdAt ?? 0).getTime();
+    const B = new Date(b.date ?? b.createdAt ?? 0).getTime();
+    return B - A;
+  });
+
+  const total = rows.length;
+  const start = (page - 1) * pageSize;
+  const paged = rows.slice(start, start + pageSize);
+
+  return { rows: paged, total };
+}
+
+export async function getRequest(id: string): Promise<RequestRow> {
+  const row = REQUESTS.find((r) => r.id === id);
+  if (!row) throw new Error(`Request ${id} not found`);
+  return row;
+}
+
+export async function updateRequest(
+  id: string,
+  patch: Partial<RequestRow>
+): Promise<RequestRow> {
+  const idx = REQUESTS.findIndex((r) => r.id === id);
+  if (idx === -1) throw new Error(`Request ${id} not found`);
+  REQUESTS[idx] = { ...REQUESTS[idx], ...patch, updatedAt: new Date().toISOString() };
+  return REQUESTS[idx];
+}
+
+export async function bulkUpdate(ids: string[], patch: Partial<RequestRow>): Promise<void> {
+  const now = new Date().toISOString();
+  REQUESTS = REQUESTS.map((r) => (ids.includes(r.id) ? { ...r, ...patch, updatedAt: now } : r));
 }

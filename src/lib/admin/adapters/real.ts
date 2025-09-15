@@ -1,19 +1,42 @@
-import type { DashboardData } from "../types";
-
-const API_BASE = process.env.NEXT_PUBLIC_TRAVILINK_API_URL || "http://localhost:4000";
+import type { DashboardData, RequestRow } from "../types";
+import type { ListRequestsQuery } from "../repo";
+// import { supabase } from "@/lib/supabaseClient"; // when ready
 
 export async function getDashboardData(): Promise<DashboardData> {
-  const [kpis, trend, status, recent] = await Promise.all([
-    fetchJSON(`${API_BASE}/admin/kpis`),
-    fetchJSON(`${API_BASE}/admin/requests/trend?days=8`),
-    fetchJSON(`${API_BASE}/admin/requests/status`),
-    fetchJSON(`${API_BASE}/admin/requests/recent?limit=50`),
-  ]);
-  return { kpis, requestsByDay: trend, statusBreakdown: status, recentRequests: recent };
+  // TODO: Replace with real queries/aggregations
+  return {
+    kpis: [],
+    requestsByDay: [],
+    statusBreakdown: [],
+    utilization: [],
+    deptUsage: [],
+    recentRequests: [],
+    recentTrips: [],
+    receivedAt: new Date().toISOString(),
+  };
 }
 
-async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, { ...init, cache: "no-store" });
-  if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
-  return res.json() as Promise<T>;
+export async function listRequests(
+  _query: ListRequestsQuery
+): Promise<{ rows: RequestRow[]; total: number }> {
+  // TODO: Translate filters to DB query; return exact shape
+  return { rows: [], total: 0 };
+}
+
+export async function getRequest(_id: string): Promise<RequestRow> {
+  // TODO
+  throw new Error("Not implemented");
+}
+
+export async function updateRequest(
+  _id: string,
+  _patch: Partial<RequestRow>
+): Promise<RequestRow> {
+  // TODO
+  throw new Error("Not implemented");
+}
+
+export async function bulkUpdate(_ids: string[], _patch: Partial<RequestRow>): Promise<void> {
+  // TODO
+  throw new Error("Not implemented");
 }

@@ -1,30 +1,53 @@
 "use client";
 
+import * as React from "react";
 import type { RequestRow } from "@/lib/admin/types";
 
-export default function DashboardActions({ rows }: { rows: RequestRow[] }) {
+type Props = {
+  rows: RequestRow[];
+  filename?: string;
+};
+
+export default function DashboardActions({ rows, filename = "requests.csv" }: Props) {
   const exportCsv = () => {
     const header = ["ID", "Requester", "Vehicle", "Date", "Status"];
-    const body = rows.map(r => [r.id, r.requester, r.vehicle, r.date, r.status]);
-    const csv = [header, ...body].map(cols => cols.map(esc).join(",")).join("\n");
+    const body = rows.map((r) => [
+      r.id ?? "",
+      r.requester ?? "",
+      r.vehicle ?? "",
+      r.date ?? "",
+      r.status ?? "",
+    ]);
+
+    const csv = [header, ...body]
+      .map((cols) => cols.map(esc).join(","))
+      .join("\n");
+
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = "requests.csv"; a.click();
+    a.href = url;
+    a.download = filename;
+    a.click();
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="print:hidden flex items-center gap-2">
+      {/* Export Button */}
       <button
+        type="button"
         onClick={exportCsv}
-        className="rounded-md border px-3 py-1.5 text-sm bg-white hover:bg-neutral-50"
+        className="inline-flex items-center rounded-md bg-[#7A0010] px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-[#60000C] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7A0010]"
       >
         Export CSV
       </button>
+
+      {/* Print Button */}
       <button
+        type="button"
         onClick={() => window.print()}
-        className="rounded-md bg-neutral-900 text-white px-3 py-1.5 text-sm hover:bg-neutral-800"
+        className="inline-flex items-center rounded-md bg-[#7A0010] px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-[#60000C] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7A0010]"
       >
         Print
       </button>
@@ -33,6 +56,6 @@ export default function DashboardActions({ rows }: { rows: RequestRow[] }) {
 }
 
 function esc(v: string | number) {
-  const s = String(v);
+  const s = String(v ?? "");
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }

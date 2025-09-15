@@ -2,37 +2,41 @@
 export type KPI = { label: string; value: number | string; caption?: string };
 
 export type TrendPoint = { date: string; count: number };
+
 export type StatusPoint = {
   status: "Pending" | "Approved" | "Completed" | "Rejected";
   count: number;
 };
 
-// NEW
-export type UtilizationPoint = { label: string; percent: number }; // e.g. vehicle or dept
+// ---- Utilization / Trip logs ----
+export type UtilizationPoint = { label: string; percent: number }; // e.g., per vehicle/dept
+
 export type TripLogRow = {
   id: string;
   vehicle: string;
   driver: string;
   department: string;
-  date: string; // YYYY-MM-DD
-  distanceKm: number; // mock for now
+  date: string;        // YYYY-MM-DD
+  distanceKm: number;  // mock for now
 };
 
+// ---- Requests ----
 export type RequestStatus = "Pending" | "Approved" | "Completed" | "Rejected";
 
-// ---- Requests ----
 export type RequestRow = {
   id: string;
   dept: "CCMS" | "HR" | "Registrar" | "Finance";
   purpose: string;
-  date: string; // YYYY-MM-DD (scheduled date)
+  date: string;                // YYYY-MM-DD (scheduled date)
   status: RequestStatus;
   requester?: string;
   vehicle?: string;
   driver?: string;
 
-  // OPTIONAL: when the request was submitted/received
-  receivedAt?: string; // e.g. "2025-09-04 10:15 AM"
+  // When the request was submitted/received (optional)
+  receivedAt?: string;         // e.g., "2025-09-04 10:15 AM"
+  createdAt?: string;          // ISO (used by mocks for sorting)
+  updatedAt?: string;          // ISO
 };
 
 export type RequestsSummary = {
@@ -53,9 +57,9 @@ export type FilterState = {
 };
 
 export type Pagination = {
-  page: number; // 1-based
-  pageSize: number; // rows per page
-  total: number; // total filtered rows
+  page: number;      // 1-based
+  pageSize: number;  // rows per page
+  total: number;     // total filtered rows
 };
 
 // ---- Dashboard aggregates ----
