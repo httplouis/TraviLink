@@ -1,90 +1,117 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import ScheduleModal from "../modals/ScheduleModal";
+import MaintenanceModal from "../modals/MaintenanceModal";
 
 const BRAND = "#7A0010";
 const BRAND_HOVER = "#60000C";
 
 export default function ActionsGroup() {
+  const [openSched, setOpenSched] = useState(false);
+  const [openMaint, setOpenMaint] = useState(false);
+
   return (
-    <div className="flex items-center gap-2">
-      {/* Primary action */}
-      <button
+    <div className="flex items-center gap-3">
+      {/* New Request (route) */}
+      <Link
+        href="/admin/requests/new"
         className="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
         style={{ background: BRAND }}
         onMouseOver={(e) => (e.currentTarget.style.background = BRAND_HOVER)}
         onMouseOut={(e) => (e.currentTarget.style.background = BRAND)}
-        onClick={() => console.log("TODO: open New Request modal / route")}
       >
         + New Request
-      </button>
+      </Link>
 
-      {/* Split/drop button examples */}
+      {/* Schedule split */}
       <SplitDropdown
         label="+ Schedule"
+        onPrimary={() => setOpenSched(true)}
         items={[
-          { label: "Create schedule", onClick: () => console.log("Create schedule") },
-          { label: "Recurring template", onClick: () => console.log("Recurring template") },
-          { label: "Import from CSV", onClick: () => console.log("Import CSV") },
+          { label: "Create schedule", href: "/admin/schedules/new" },
+          { label: "Recurring template", href: "/admin/schedules/recurring/new" },
+          { label: "Import from CSV", href: "/admin/schedules/import" },
         ]}
       />
+
+      {/* Maintenance split */}
       <SplitDropdown
         label="+ Maintenance"
+        onPrimary={() => setOpenMaint(true)}
         items={[
-          { label: "New maintenance log", onClick: () => console.log("New maintenance log") },
-          { label: "Preventive schedule", onClick: () => console.log("Preventive schedule") },
-          { label: "Parts inventory", onClick: () => console.log("Parts inventory") },
+          { label: "New maintenance log", href: "/admin/maintenance/new" },
+          { label: "Preventive schedule", href: "/admin/maintenance/preventive" },
+          { label: "Parts inventory", href: "/admin/maintenance/inventory" },
         ]}
       />
+
+      {/* Modals */}
+      <ScheduleModal open={openSched} onClose={() => setOpenSched(false)} />
+      <MaintenanceModal open={openMaint} onClose={() => setOpenMaint(false)} />
     </div>
   );
 }
 
-/* --- small split dropdown button --- */
 function SplitDropdown({
   label,
+  onPrimary,
   items,
 }: {
   label: string;
-  items: { label: string; onClick: () => void }[];
+  onPrimary: () => void;
+  items: { label: string; href: string }[];
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const off = (e: MouseEvent) => {
+    const clickAway = (e: MouseEvent) => {
       if (!ref.current) return;
       if (open && !ref.current.contains(e.target as Node)) setOpen(false);
     };
     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("click", off);
+    document.addEventListener("click", clickAway);
     document.addEventListener("keydown", onEsc);
     return () => {
-      document.removeEventListener("click", off);
+      document.removeEventListener("click", clickAway);
       document.removeEventListener("keydown", onEsc);
     };
   }, [open]);
 
   return (
     <div ref={ref} className="relative">
-      <button
-        className="inline-flex items-center rounded-full bg-white/12 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-        onClick={() => setOpen((v) => !v)}
-      >
-        {label}
-        <svg className="ml-1 h-4 w-4 opacity-85" viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 7 10 11.5 14.5 7l1 1L10 14 4.5 8l1-1Z"/></svg>
-      </button>
+      <div className="flex overflow-hidden rounded-full shadow-sm ring-1 ring-white/20">
+        <button
+          className="bg-white/14 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+          onClick={onPrimary}
+        >
+          {label}
+        </button>
+        <button
+          className="bg-white/10 px-2 text-white hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M5.5 7 10 11.5 14.5 7l1 1L10 14 4.5 8l1-1Z" />
+          </svg>
+        </button>
+      </div>
 
       {open && (
         <div className="absolute right-0 z-50 mt-2 min-w-[220px] rounded-lg bg-white p-1 text-neutral-900 shadow-2xl ring-1 ring-black/10">
           {items.map((it) => (
-            <button
+            <Link
               key={it.label}
-              onClick={() => { setOpen(false); it.onClick(); }}
-              className="flex w-full items-center rounded-md px-3 py-2 text-sm hover:bg-neutral-50"
+              href={it.href}
+              className="block rounded-md px-3 py-2 text-sm hover:bg-neutral-50"
+              onClick={() => setOpen(false)}
             >
               {it.label}
-            </button>
+            </Link>
           ))}
         </div>
       )}
