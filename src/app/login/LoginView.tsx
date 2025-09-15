@@ -27,134 +27,91 @@ export default function LoginView({
 
   return (
     <div className="fixed inset-0 font-sans h-dvh overflow-hidden">
-      {/* Background image layer */}
+      {/* page background */}
       <div className="absolute inset-0 -z-10">
         <img
-          src="/pattern-light.jpg" /* put the image file under /public */
+          src="/pattern-light.jpg"
           alt="Campus background"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/55" />
+        <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      {/* Floating Help Button (bottom-left) */}
-      <button
-        type="button"
-        onClick={() => (window.location.href = "mailto:ictd@mseuf.edu.ph")}
-        aria-label="Need Help?"
-        className="group fixed bottom-6 left-8 z-50 grid place-items-center
-                   w-12 h-12 rounded-full bg-white text-red-900 shadow-md
-                   transition-transform duration-200 hover:scale-110 hover:shadow-lg
-                   focus-visible:scale-110"
-      >
-        <span className="text-xl font-extrabold leading-none">?</span>
-        <span
-          className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2
-                     rounded-md bg-red-900 text-white text-xs px-2 py-1
-                     opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
-        >
-          Need Help?
-        </span>
-      </button>
-
-      {/* Centered login card */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center p-6 sm:p-8">
+      {/* container */}
+      <div className="relative z-10 h-full w-full flex items-center justify-center p-4 sm:p-8">
         <form
-          onSubmit={onSubmit}
-          className="w-full max-w-5xl overflow-hidden rounded-2xl shadow-2xl
-                     backdrop-blur grid grid-cols-1 md:grid-cols-[340px_minmax(0,1fr)] gap-0 bg-transparent"
-        >
-          {/* Left panel (brand / crest) */}
-          <div className="relative hidden md:flex items-center justify-center rounded-l-2xl">
-            <div className="absolute inset-0">
-              <img
-                src="/pattern-light.jpg"
-                alt="Panel background"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-[#7A0010]/75" />
-            </div>
+  onSubmit={onSubmit}
+  className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 rounded-3xl shadow-2xl bg-white overflow-hidden"
+>
+  {/* LEFT: image panel */}
+  <div className="relative hidden md:block overflow-hidden rounded-l-3xl group">
+    <img
+      src="/pattern-light.jpg"
+      alt="Campus"
+      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+    />
+    <div className="absolute inset-0 bg-[#7A0010]/70" />
 
-            <div className="relative z-10 flex flex-col items-center justify-center px-8 py-14 gap-4">
-              <div className="w-36 h-36 rounded-2xl overflow-hidden shadow-md bg-white grid place-items-center">
-                <img
-                  src="/eulogo.png"
-                  alt="Enverga University Logo"
-                  className="w-32 h-32 object-contain"
-                />
-              </div>
+    {/* logo */}
+    <div className="absolute right-6 top-6">
+      <img
+        src="/euwhite.png"
+        alt="EU Logo"
+        className="h-10 w-10 object-contain drop-shadow-lg"
+      />
+    </div>
 
-              <div className="text-center">
-                <h3 className="text-2xl font-extrabold text-white leading-tight tracking-tight">
-                  Enverga University
-                </h3>
-                <p className="text-sm text-white/80">Lucena Campus</p>
-              </div>
+    {/* overlay text */}
+    <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
+      <p className="text-sm uppercase tracking-[0.18em] font-semibold opacity-90">
+        Welcome to
+      </p>
+      <h1 className="mt-2 text-4xl sm:text-5xl leading-tight font-extrabold">
+        TraviLink
+      </h1>
+      <p className="mt-3 text-base text-white/90">
+        Smart Campus Transport System for Everyone
+      </p>
+    </div>
+  </div>
+  
 
-              <div className="mt-8 w-full">
-                <div className="mx-auto w-full rounded-lg bg-white/90 text-gray-700 text-center text-sm py-3 shadow">
-                  {new Date().toLocaleString()}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right panel (form) */}
-          <div className="relative p-8 sm:p-10 bg-white/90 backdrop-blur rounded-r-2xl">
-            <div className="mb-8 flex items-center gap-3">
-              <div className="grid place-items-center w-11 h-11 rounded-full bg-gray-100 text-red-900">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5.333 0-8 2.667-8 8h2c0-4.418 1.791-6 6-6s6 1.582 6 6h2c0-5.333-2.667-8-8-8z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-800">Sign in</h2>
-            </div>
+          {/* RIGHT: form panel */}
+          <div className="relative bg-white rounded-3xl shadow-2xl p-7 sm:p-10">
+            <h2 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-[#7A0010] mb-6">
+              SIGN IN NOW
+            </h2>
 
             {/* Email */}
-            <div className="mb-6">
-              <label className="block text-base font-medium text-gray-700 mb-2">
-                Username
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
               </label>
               <div className="relative group">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-900 transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5.333 0-8 2.667-8 8h2c0-4.418 1.791-6 6-6s6 1.582 6 6h2c0-5.333-2.667-8-8-8z" />
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2 6a2 2 0 012-2h16a2 2 0 012 2v1l-10 6L2 7V6zm0 4.236l9.445 5.667a1 1 0 001.11 0L22 10.236V18a2 2 0 01-2 2H4a2 2 0 01-2-2v-7.764z" />
                   </svg>
                 </span>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-12 border border-gray-300 focus:ring-2 focus:ring-red-900 focus:border-red-900 rounded-md outline-none text-base shadow-sm text-gray-900 placeholder-gray-400 pl-11 pr-4"
                   placeholder="you@mseuf.edu.ph"
                   required
+                  className="h-12 w-full rounded-md border border-gray-300 pl-10 pr-3 text-gray-900 placeholder-gray-400 shadow-sm outline-none focus:border-[#7A0010] focus:ring-2 focus:ring-[#7A0010]/20"
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div className="mb-3">
-              <label className="block text-base font-medium text-gray-700 mb-2">
+            <div className="mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
               <div className="relative group">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-900 transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm-3 8V6a3 3 0 016 0v3H9z" />
                   </svg>
                 </span>
@@ -162,16 +119,15 @@ export default function LoginView({
                   type={showPw ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                   placeholder="••••••••"
-                  className="w-full h-12 rounded-md border border-gray-300 text-base outline-none shadow-sm text-gray-900
-                             focus:ring-2 focus:ring-red-900 focus:border-red-900 pl-11 pr-10"
+                  required
+                  className="h-12 w-full rounded-md border border-gray-300 pl-10 pr-10 text-gray-900 placeholder-gray-400 shadow-sm outline-none focus:border-[#7A0010] focus:ring-2 focus:ring-[#7A0010]/20"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   aria-label={showPw ? "Hide password" : "Show password"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded hover:bg-gray-100 text-gray-500"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-gray-500 hover:bg-gray-100"
                 >
                   {showPw ? (
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -186,57 +142,38 @@ export default function LoginView({
               </div>
             </div>
 
-            {/* Options row: show password + remember me */}
-            <div className="mb-7 flex items-center justify-between gap-3">
-              <label className="flex items-center gap-2 text-base text-gray-700 select-none">
+            {/* remember / forgot */}
+            <div className="mb-6 flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm text-gray-700 select-none">
                 <input
                   type="checkbox"
-                  className="accent-red-900 scale-110"
-                  checked={showPw}
-                  onChange={(e) => setShowPw(e.target.checked)}
-                />
-                Show Password
-              </label>
-              <label className="flex items-center gap-2 text-base text-gray-700 select-none">
-                <input
-                  type="checkbox"
-                  className="accent-red-900 scale-110"
+                  className="accent-[#7A0010]"
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
                 />
                 Remember me
               </label>
+              <Link href="/forgot" className="text-sm text-[#7A0010] hover:underline">
+                Forgot Password?
+              </Link>
             </div>
 
-            {err && <p className="text-base text-red-600 mb-4">{err}</p>}
+            {err && <p className="mb-4 text-sm text-red-600">{err}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="bg-red-900 text-white w-full h-12 rounded-md hover:bg-red-800 transition-all font-semibold text-base shadow-md disabled:opacity-60"
+              className="h-12 w-full rounded-md bg-[#7A0010] text-white font-semibold shadow-md transition hover:bg-[#69000d] disabled:opacity-60"
             >
               {loading ? "Signing in..." : "Login"}
             </button>
 
-            <div className="mt-6 flex items-center justify-between gap-3 text-base">
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center rounded-md border border-gray-300 px-4 py-2.5 text-gray-700 hover:bg-gray-50"
-              >
-                Register Account
+            <p className="mt-6 text-sm text-gray-700">
+              Don’t have an account?{" "}
+              <Link href="/register" className="font-semibold text-[#7A0010] hover:underline">
+                Register
               </Link>
-              <a href="#" className="text-red-900 hover:underline">
-                Forgot Password
-              </a>
-            </div>
-
-            <div className="mt-6 text-sm text-center text-gray-600">
-              <Link href="/privacy" className="hover:text-red-900 underline-offset-4 hover:underline">Privacy</Link>
-              {" "}•{" "}
-              <Link href="/terms" className="hover:text-red-900 underline-offset-4 hover:underline">Terms</Link>
-              {" "}•{" "}
-              <Link href="/contact" className="hover:text-red-900 underline-offset-4 hover:underline">Contact</Link>
-            </div>
+            </p>
           </div>
         </form>
       </div>
