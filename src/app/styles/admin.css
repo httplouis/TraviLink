@@ -41,6 +41,16 @@
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+
+  /* --- Keep width stable when scrollbar appears/disappears --- */
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Fallback for browsers without scrollbar-gutter */
+@supports not (scrollbar-gutter: stable) {
+  [data-role="admin"] .tl-main {
+    overflow-y: scroll; /* always reserve gutter */
+  }
 }
 
 /* ===== Optional helpers ===== */
