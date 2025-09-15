@@ -11,14 +11,12 @@ type Props = {
   rows: RequestRow[];
   pagination: Pagination;
 
-  // header controls
   tableSearch: string;
   onTableSearch?: (q: string) => void;
   sortDir?: "asc" | "desc";
   onSortDirChange?: (d: "asc" | "desc") => void;
   onAddNew?: () => void;
 
-  // filters
   filterControls: {
     draft: FilterState;
     onDraftChange: (n: Partial<FilterState>) => void;
@@ -26,12 +24,10 @@ type Props = {
     onClearAll: () => void;
   };
 
-  // selection
   selectedIds?: Set<string>;
   onToggleOne: (id: string) => void;
   onToggleAllOnPage: (checked: boolean, idsOnPage: string[]) => void;
 
-  // row UX
   onRowClick?: (row: RequestRow) => void;
   onRowViewDetails?: (row: RequestRow) => void;
 
@@ -42,33 +38,26 @@ type Props = {
   onRejectRow?: (id: string) => Promise<void>;
 };
 
-export default function RequestsTable({
-  rows,
-  pagination,
-  tableSearch,
-  onTableSearch,
-  sortDir = "desc",
-  onSortDirChange,
-  onAddNew,
-  filterControls,
-  selectedIds,
-  onToggleOne,
-  onToggleAllOnPage,
-  onRowClick,
-  onRowViewDetails,
-  onPageChange,
-  onPageSizeChange,
-  onApproveRow,
-  onRejectRow,
-}: Props) {
+export default function RequestsTable(props: Props) {
+  const {
+    rows, pagination,
+    tableSearch, onTableSearch,
+    sortDir = "desc", onSortDirChange, onAddNew,
+    filterControls, selectedIds,
+    onToggleOne, onToggleAllOnPage,
+    onRowClick, onRowViewDetails,
+    onPageChange, onPageSizeChange,
+    onApproveRow, onRejectRow
+  } = props;
+
   const set = selectedIds ?? new Set<string>();
-  const idsOnPage = rows.map((r) => r.id);
-  const allChecked = idsOnPage.length > 0 && idsOnPage.every((id) => set.has(id));
-  const indeterminate = !allChecked && idsOnPage.some((id) => set.has(id));
+  const idsOnPage = rows.map(r => r.id);
+  const allChecked = idsOnPage.length > 0 && idsOnPage.every(id => set.has(id));
+  const indeterminate = !allChecked && idsOnPage.some(id => set.has(id));
 
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
-      {/* sticky toolbar under KPI (no inline top) */}
+      {/* Sticky toolbar — sits under KPI */}
       <div className="admin-sticky-toolbar px-3 py-2">
         <RequestsToolbar
           q={tableSearch}
@@ -84,25 +73,26 @@ export default function RequestsTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed text-sm">
-          {/* fixed widths to prevent column shift */}
+        {/* border-separate + spacing:0 keeps columns aligned with sticky thead */}
+        <table className="w-full table-fixed text-sm border-separate [border-spacing:0]">
           <colgroup>
-            {[44, 110, 140, null, 170, 120, 120, 150].map((w, i) => (
+            {[44,110,140,null,170,120,120,150].map((w,i) => (
               <col key={i} style={w ? { width: w } : undefined} />
             ))}
           </colgroup>
 
-          {/* thead stays simple; sticky is applied per <th> */}
-          <thead>
+          {/* ✅ sticky THEAD (inline top for reliability) */}
+          <thead
+            className="admin-thead-sticky sticky bg-white/90 backdrop-blur"
+            style={{ top: "var(--stack-offset)" }}
+          >
             <tr className="text-neutral-600">
               <Th>
                 <input
                   aria-label="Select all on page"
                   type="checkbox"
                   checked={allChecked}
-                  ref={(el) => {
-                    if (el) el.indeterminate = indeterminate;
-                  }}
+                  ref={(el) => { if (el) el.indeterminate = indeterminate; }}
                   onChange={(e) => onToggleAllOnPage(e.currentTarget.checked, idsOnPage)}
                 />
               </Th>
@@ -134,27 +124,20 @@ export default function RequestsTable({
 
                 <Td onClick={(e) => e.stopPropagation()}>
                   <button
-                    className="text-[13px] font-semibold text-blue-700 underline-offset-2 hover:underline"
-                    onClick={() => onRowClick?.(r)}
+                    className="text-[13px] font-semibold text-[#7a1f2a] underline-offset-2 hover:underline"
+                    onClick={() => onRowViewDetails?.(r)}
                   >
                     {r.id}
                   </button>
                 </Td>
 
                 <Td>{r.dept}</Td>
-
-                <Td className="truncate" title={r.purpose}>
-                  {r.purpose}
-                </Td>
-
+                <Td className="truncate" title={r.purpose}>{r.purpose}</Td>
                 <Td className="tabular-nums whitespace-nowrap">
                   {(r as any).receivedAt ?? (r as any).createdAt ?? "—"}
                 </Td>
                 <Td className="tabular-nums whitespace-nowrap">{r.date}</Td>
-
-                <Td>
-                  <StatusBadge status={r.status} />
-                </Td>
+                <Td><StatusBadge status={r.status} /></Td>
 
                 <Td className="text-right" onClick={(e) => e.stopPropagation()}>
                   {r.status === "Pending" ? (
@@ -192,8 +175,8 @@ export default function RequestsTable({
 
       <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2">
         <div className="text-xs text-neutral-500">
-          Page {pagination.page} of {Math.max(1, Math.ceil(pagination.total / pagination.pageSize))} · Showing{" "}
-          {Math.min(pagination.pageSize, rows.length)} of {pagination.total}
+          Page {pagination.page} of {Math.max(1, Math.ceil(pagination.total / pagination.pageSize))}
+          · Showing {Math.min(pagination.pageSize, rows.length)} of {pagination.total}
         </div>
         <PaginationUI
           page={pagination.page}
@@ -207,35 +190,10 @@ export default function RequestsTable({
   );
 }
 
-/* Header cell with sticky applied (works across browsers) */
-function Th({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <th
-      className={[
-        // sticky per cell instead of thead
-        "sticky",
-        "top-[calc(var(--admin-kpi-h)+var(--admin-toolbar-h))]",
-        "z-20",
-        // visual/background for overlap
-        "bg-neutral-50/90",
-        "backdrop-blur",
-        "supports-[backdrop-filter]:bg-neutral-50/60",
-        // spacing + typography
-        "px-4 py-3 text-left text-xs font-semibold",
-        className,
-      ].join(" ")}
-    >
-      {children}
-    </th>
-  );
+/* cells */
+function Th({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <th className={`px-4 py-3 text-left text-xs font-semibold ${className}`}>{children}</th>;
 }
-
 function Td({
   children,
   className = "",
@@ -247,11 +205,7 @@ function Td({
   colSpan?: number;
 } & React.HTMLAttributes<HTMLTableCellElement>) {
   return (
-    <td
-      className={`px-4 py-3 align-middle text-[13px] text-neutral-800 ${className}`}
-      colSpan={colSpan}
-      {...rest}
-    >
+    <td className={`px-4 py-3 align-middle text-[13px] text-neutral-800 ${className}`} colSpan={colSpan} {...rest}>
       {children}
     </td>
   );

@@ -165,35 +165,35 @@ function PageInner() {
 
   // measure sticky offsets → CSS vars
   useEffect(() => {
-    const selKpi = '[data-role="admin"] .admin-sticky-kpi';
-    const selTb  = '[data-role="admin"] .admin-sticky-toolbar';
+  const selKpi = '[data-role="admin"] .admin-sticky-kpi';
+  const selTb  = '[data-role="admin"] .admin-sticky-toolbar';
 
-    function update() {
-      const kpi = document.querySelector(selKpi) as HTMLElement | null;
-      const tb  = document.querySelector(selTb)  as HTMLElement | null;
+  function update() {
+    const kpi = document.querySelector(selKpi) as HTMLElement | null;
+    const tb  = document.querySelector(selTb)  as HTMLElement | null;
 
-      const kpiH = kpi?.offsetHeight ?? 0;
-      const tbH  = tb?.offsetHeight ?? 0;
+    const kpiH = kpi?.offsetHeight ?? 0;
+    const tbH  = tb?.offsetHeight ?? 0;
 
-      document.documentElement.style.setProperty("--rq-kpi", `${kpiH}px`);
-      document.documentElement.style.setProperty("--rq-toolbar", `${tbH}px`);
-      document.documentElement.style.setProperty("--rq-offset", `${kpiH + tbH}px`);
+    const root = document.querySelector('[data-role="admin"]') as HTMLElement | null;
+    if (root) {
+      root.style.setProperty("--rq-kpi", `${kpiH}px`);
+      root.style.setProperty("--rq-toolbar", `${tbH}px`);
+      root.style.setProperty("--rq-offset", `${kpiH + tbH}px`);
     }
+  }
 
-    update();
-    window.addEventListener("resize", update);
+  update();
+  window.addEventListener("resize", update);
 
-    const obs = new MutationObserver(update);
-    const kpiNode = document.querySelector(selKpi);
-    const tbNode  = document.querySelector(selTb);
-    if (kpiNode) obs.observe(kpiNode, { childList: true, subtree: true, attributes: true });
-    if (tbNode)  obs.observe(tbNode,  { childList: true, subtree: true, attributes: true });
+  const obs = new MutationObserver(update);
+  const kpiNode = document.querySelector(selKpi);
+  const tbNode  = document.querySelector(selTb);
+  if (kpiNode) obs.observe(kpiNode, { childList: true, subtree: true, attributes: true });
+  if (tbNode)  obs.observe(tbNode,  { childList: true, subtree: true, attributes: true });
 
-    return () => {
-      window.removeEventListener("resize", update);
-      obs.disconnect();
-    };
-  }, []);
+  return () => { window.removeEventListener("resize", update); obs.disconnect(); };
+}, []);
 
   const pageRows = useMemo(() => {
     const start = (pagination.page - 1) * pagination.pageSize;
@@ -372,10 +372,16 @@ function PageInner() {
   return (
     <div className="space-y-4">
       {/* Sticky KPI + View toggle */}
-      <div className="admin-sticky-kpi">
-        <RequestsSummaryUI summary={summary} />
-        <ViewToggleUI view={view} onChange={setView} className="justify-end" />
-      </div>
+<div className="admin-sticky-kpi">
+  {/* stack the cards and the toggle with spacing + a bit of right padding */}
+  <div className="space-y-2 pr-2">
+    <RequestsSummaryUI summary={summary} />
+    <div className="flex justify-end">
+      <ViewToggleUI view={view} onChange={setView} />
+    </div>
+  </div>
+</div>
+
 
       {/* Filters container provides filtering logic to both views */}
       <FiltersBarContainer rows={allRows} onFiltered={setFilteredRows}>
