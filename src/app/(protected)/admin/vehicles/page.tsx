@@ -1,4 +1,1 @@
-import VehiclesPageClient from "./page.client";
-export default function Page() {
-  return <VehiclesPageClient />;
-}
+export { VehiclesPage as default } from "./VehiclesPage";
