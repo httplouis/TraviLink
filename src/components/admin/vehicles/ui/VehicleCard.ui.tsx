@@ -7,7 +7,7 @@ import {
   ChevronRight,
   Clock3,
   User,
-  Users, // << use this for capacity
+  Users,
   Scale,
 } from "lucide-react";
 
@@ -30,8 +30,6 @@ export function VehicleCard({
   onDelete: (id: string) => void;
   onOpenDetails: (id: string) => void;
 }) {
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
-
   const badge =
     v.status === "active"
       ? "bg-green-100 text-green-700"
@@ -115,37 +113,13 @@ export function VehicleCard({
         </button>
 
         <div className="flex items-center gap-1.5">
-          <IconBtn
-            title="Edit"
-            onClick={() => onEdit(v.id)}
-            icon={<Edit size={16} />}
-          />
-          <IconBtn
-            title="Delete"
-            onClick={() => setConfirmOpen(true)}
-            icon={<Trash2 size={16} />}
-          />
+          <IconBtn title="Edit" onClick={() => onEdit(v.id)} icon={<Edit size={16} />} />
+          <IconBtn title="Delete" onClick={() => onDelete(v.id)} icon={<Trash2 size={16} />} />
         </div>
       </div>
-
-      {/* Delete confirm modal */}
-      {confirmOpen && (
-        <ConfirmDialog
-          title="Delete vehicle?"
-          message={`Are you sure you want to delete ${v.plateNo}? This action cannot be undone.`}
-          confirmText="Delete"
-          onCancel={() => setConfirmOpen(false)}
-          onConfirm={() => {
-            setConfirmOpen(false);
-            onDelete(v.id);
-          }}
-        />
-      )}
     </div>
   );
 }
-
-/* ---------- small UI atoms ---------- */
 
 function MetaRow({
   icon,
@@ -184,47 +158,5 @@ function IconBtn({
     >
       {icon}
     </button>
-  );
-}
-
-/* ---------- lightweight confirm dialog ---------- */
-function ConfirmDialog({
-  title,
-  message,
-  confirmText = "Confirm",
-  onCancel,
-  onConfirm,
-}: {
-  title: string;
-  message: string;
-  confirmText?: string;
-  onCancel: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <div className="border-b px-4 py-3">
-          <div className="text-sm font-semibold">{title}</div>
-        </div>
-        <div className="px-4 py-4 text-sm text-gray-700">
-          {message}
-        </div>
-        <div className="flex justify-end gap-2 border-t px-4 py-3">
-          <button
-            onClick={onCancel}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm text-white shadow hover:bg-red-700"
-          >
-            {confirmText}
-          </button>
-        </div>
-      </div>
-    </div>
   );
 }

@@ -5,7 +5,7 @@ export { VehiclesBulkBar } from "./toolbar/VehiclesBulkBar.ui";
 export { VehiclesTable } from "./ui/VehiclesTable.ui";
 export { VehiclesGrid } from "./ui/VehiclesGrid.ui";
 export { VehicleCard } from "./ui/VehicleCard.ui";
-export { VehicleForm } from "./forms/VehicleForm.ui";
+export { VehicleFormModal } from "./forms/VehicleFormModal.ui";
 export { VehicleDetailsModal } from "./ui/VehicleDetailsModal.ui";
 export { KpiStrip } from "./kpi/KpiStrip.ui";
 export * as VehicleInputs from "./ui/inputs/TinyInputs";
