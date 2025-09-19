@@ -36,7 +36,7 @@ const NAV: Item[] = [
   { href: "/admin/maintenance", label: "Maintenance", Icon: Wrench },
   { href: "/admin/track", label: "Track / Live", Icon: MapPin },
   { href: "/admin/history", label: "History / Logs", Icon: History },
-  { href: "/admin/reports", label: "Reports / Exports", Icon: FileBarChart },
+  { href: "/admin/report", label: "Reports / Exports", Icon: FileBarChart },
   { href: "/admin/settings", label: "Settings", Icon: Settings },
 ];
 
