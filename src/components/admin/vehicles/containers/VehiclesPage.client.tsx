@@ -4,7 +4,7 @@ import { VehiclesFilterBar } from "../filters/VehiclesFilterBar.ui";
 import { VehiclesBulkBar } from "../toolbar/VehiclesBulkBar.ui";
 import { VehiclesTable } from "../ui/VehiclesTable.ui";
 import { VehiclesGrid } from "../ui/VehiclesGrid.ui";
-import { VehicleForm } from "../forms/VehicleForm.ui";
+import { VehicleFormModal } from "../forms/VehicleFormModal.ui";
 import { VehiclesHeader } from "../filters/VehiclesHeader.ui";
 import { VehicleDetailsModal } from "../ui/VehicleDetailsModal.ui";
 import { useVehiclesScreen } from "../hooks/useVehiclesScreen";
@@ -29,8 +29,12 @@ export default function VehiclesPageClient() {
   const onDeleteSelected = () => { selection.forEach(VehiclesRepo.remove); setSelection([]); refresh(); };
   const onExportCSV = () => {
     const blob = new Blob([toCSV(rows)], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob); const a = document.createElement("a");
-    a.href = url; a.download = "vehicles.csv"; a.click(); URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob); 
+    const a = document.createElement("a");
+    a.href = url; 
+    a.download = "vehicles.csv"; 
+    a.click(); 
+    URL.revokeObjectURL(url);
   };
 
   // counts for tabs
@@ -45,9 +49,17 @@ export default function VehiclesPageClient() {
         return due && new Date(due) <= new Date();
       }).length,
     };
-  }, [rows]); // recompute occasionally
+  }, [rows]);
 
   const current = openDetails ? VehiclesRepo.get(openDetails) as any : null;
+
+  // --- Reset sample handler (DEV only) ---
+  const handleResetSample = () => {
+    VehiclesRepo.resetToSample();
+    setSelection([]);
+    setFilters({});
+    refresh();
+  };
 
   return (
     <div className="space-y-4 p-4">
@@ -58,6 +70,7 @@ export default function VehiclesPageClient() {
         view={view}
         onView={setView}
         onCreate={() => setForm({ mode: "create" })}
+        onReset={handleResetSample}   // dev-only button
       />
 
       <VehiclesFilterBar value={filters} onChange={setFilters} onClear={onClear} />
@@ -65,28 +78,46 @@ export default function VehiclesPageClient() {
       <div className="flex flex-col gap-3">
         {view === "table" ? (
           <>
-            <VehiclesBulkBar selection={selection} rows={rows} onDeleteSelected={onDeleteSelected} onExportCSV={onExportCSV} />
-            <VehiclesTable rows={rows} selection={selection} setSelection={setSelection} onEdit={onEdit} onDelete={onDelete} />
+            <VehiclesBulkBar
+              selection={selection}
+              rows={rows}
+              onDeleteSelected={onDeleteSelected}
+              onExportCSV={onExportCSV}
+            />
+            <VehiclesTable
+              rows={rows}
+              selection={selection}
+              setSelection={setSelection}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
           </>
         ) : (
-          <VehiclesGrid rows={rows as any} onEdit={onEdit} onDelete={onDelete} onOpenDetails={(id) => setOpenDetails(id)} />
+          <VehiclesGrid
+            rows={rows as any}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onOpenDetails={(id) => setOpenDetails(id)}
+          />
         )}
       </div>
 
+      {/* Create/Edit modal */}
       {form && (
-        <div className="rounded-lg border bg-white p-4">
-          <VehicleForm
-            initial={form.mode === "edit" ? (VehiclesRepo.get(form.id) ?? undefined) : undefined}
-            onCancel={() => setForm(null)}
-            onSubmit={(data) => {
-              if (form.mode === "create") VehiclesRepo.create(data);
-              else VehiclesRepo.update(form.id, data);
-              setForm(null); refresh();
-            }}
-          />
-        </div>
+        <VehicleFormModal
+          open={!!form}
+          initial={form.mode === "edit" ? (VehiclesRepo.get(form.id) ?? undefined) : undefined}
+          onCancel={() => setForm(null)}
+          onSubmit={(data) => {
+            if (form.mode === "create") VehiclesRepo.create(data);
+            else VehiclesRepo.update(form.id, data);
+            setForm(null); 
+            refresh();
+          }}
+        />
       )}
 
+      {/* Details modal */}
       <VehicleDetailsModal
         open={!!openDetails}
         onClose={() => setOpenDetails(null)}

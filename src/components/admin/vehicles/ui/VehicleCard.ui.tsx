@@ -1,7 +1,17 @@
 "use client";
 import * as React from "react";
 import type { Vehicle } from "@/lib/admin/vehicles/types";
-import { Edit, Trash2, ChevronRight } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  ChevronRight,
+  Clock3,
+  User,
+  Users, // << use this for capacity
+  Scale,
+} from "lucide-react";
+
+const BRAND = "#7a0019";
 
 export function VehicleCard({
   v,
@@ -20,6 +30,8 @@ export function VehicleCard({
   onDelete: (id: string) => void;
   onOpenDetails: (id: string) => void;
 }) {
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+
   const badge =
     v.status === "active"
       ? "bg-green-100 text-green-700"
@@ -28,40 +40,189 @@ export function VehicleCard({
       : "bg-gray-200 text-gray-700";
 
   return (
-    <div className="rounded-xl border bg-white p-3 shadow-sm">
-      <div className="aspect-[16/7] overflow-hidden rounded-lg bg-gray-50">
-        {v.photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={v.photoUrl} alt={v.model} className="h-full w-full object-cover" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-gray-400 text-sm">Vehicle photo</div>
-        )}
-      </div>
-
-      <div className="mt-3 flex items-start justify-between gap-2">
-        <div>
-          <div className="text-sm text-gray-500">{v.brand} {v.model}</div>
-          <div className="text-base font-semibold">{v.plateNo}</div>
+    <div className="group rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm transition hover:shadow-md hover:ring-gray-300">
+      {/* Media */}
+      <div className="relative overflow-hidden rounded-t-2xl">
+        <div className="aspect-[16/7] bg-gray-50">
+          {v.photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={v.photoUrl}
+              alt={v.model}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
+              Vehicle photo
+            </div>
+          )}
         </div>
-        <span className={`rounded-full px-2 py-0.5 text-xs ${badge}`}>{v.status}</span>
+
+        {/* Top-left status */}
+        <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-medium backdrop-blur-md ${badge}`}>
+          {v.status}
+        </span>
+
+        {/* Top-right pill: capacity (users icon) */}
+        <span className="absolute right-3 top-3 hidden items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs text-gray-700 shadow-sm backdrop-blur md:inline-flex">
+          <Users size={14} /> {v.capacity}
+        </span>
       </div>
 
-      <div className="mt-2 grid gap-1 text-sm text-gray-600">
-        <div className="flex justify-between"><span>Last check-in/out</span><span>{v.lastCheckIn ?? "—"}</span></div>
-        <div className="flex justify-between"><span>Max. load capacity</span><span>{v.maxLoadKg ? `${v.maxLoadKg.toLocaleString()} kg` : "—"}</span></div>
-        <div className="flex justify-between"><span>Assigned driver</span><span>{v.assignedDriver ?? "—"}</span></div>
+      {/* Header */}
+      <div className="px-3 pt-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="truncate text-[13px] text-gray-500">
+              {v.brand} {v.model}
+            </div>
+            <div className="truncate text-base font-semibold tracking-tight">
+              {v.plateNo}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
+      {/* Meta */}
+      <div className="px-3 pt-2">
+        <div className="grid gap-1.5 text-sm text-gray-700">
+          <MetaRow
+            icon={<Clock3 size={16} className="opacity-70" />}
+            label="Last check-in/out"
+            value={v.lastCheckIn ?? "—"}
+          />
+          <MetaRow
+            icon={<Scale size={16} className="opacity-70" />}
+            label="Max. load"
+            value={v.maxLoadKg ? `${v.maxLoadKg.toLocaleString()} kg` : "—"}
+          />
+          <MetaRow
+            icon={<User size={16} className="opacity-70" />}
+            label="Assigned driver"
+            value={v.assignedDriver ?? "—"}
+          />
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mt-3 flex items-center justify-between px-3 pb-3">
         <button
           onClick={() => onOpenDetails(v.id)}
-          className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm hover:bg-gray-50"
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-white shadow-sm transition"
+          style={{ background: BRAND }}
         >
           View details <ChevronRight size={16} />
         </button>
+
         <div className="flex items-center gap-1.5">
-          <button onClick={() => onEdit(v.id)} className="rounded-md border p-1.5 hover:bg-gray-50" title="Edit"><Edit size={16} /></button>
-          <button onClick={() => onDelete(v.id)} className="rounded-md border p-1.5 hover:bg-gray-50" title="Delete"><Trash2 size={16} /></button>
+          <IconBtn
+            title="Edit"
+            onClick={() => onEdit(v.id)}
+            icon={<Edit size={16} />}
+          />
+          <IconBtn
+            title="Delete"
+            onClick={() => setConfirmOpen(true)}
+            icon={<Trash2 size={16} />}
+          />
+        </div>
+      </div>
+
+      {/* Delete confirm modal */}
+      {confirmOpen && (
+        <ConfirmDialog
+          title="Delete vehicle?"
+          message={`Are you sure you want to delete ${v.plateNo}? This action cannot be undone.`}
+          confirmText="Delete"
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={() => {
+            setConfirmOpen(false);
+            onDelete(v.id);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ---------- small UI atoms ---------- */
+
+function MetaRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-2 text-gray-600">
+        {icon}
+        <span className="truncate">{label}</span>
+      </div>
+      <span className="truncate text-gray-900">{value}</span>
+    </div>
+  );
+}
+
+function IconBtn({
+  title,
+  onClick,
+  icon,
+}: {
+  title: string;
+  onClick: () => void;
+  icon: React.ReactNode;
+}) {
+  return (
+    <button
+      title={title}
+      onClick={onClick}
+      className="rounded-xl border border-gray-200 bg-white p-1.5 text-gray-700 shadow-sm transition hover:bg-gray-50"
+    >
+      {icon}
+    </button>
+  );
+}
+
+/* ---------- lightweight confirm dialog ---------- */
+function ConfirmDialog({
+  title,
+  message,
+  confirmText = "Confirm",
+  onCancel,
+  onConfirm,
+}: {
+  title: string;
+  message: string;
+  confirmText?: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="border-b px-4 py-3">
+          <div className="text-sm font-semibold">{title}</div>
+        </div>
+        <div className="px-4 py-4 text-sm text-gray-700">
+          {message}
+        </div>
+        <div className="flex justify-end gap-2 border-t px-4 py-3">
+          <button
+            onClick={onCancel}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm text-white shadow hover:bg-red-700"
+          >
+            {confirmText}
+          </button>
         </div>
       </div>
     </div>
